@@ -17,4 +17,10 @@ public class Piece
     {
         Owner = owner;
     }
+
+    public void MoveToBase()
+    {
+        InBase = true;
+        Position = null;
+    }
 }

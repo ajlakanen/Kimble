@@ -42,20 +42,20 @@ public class Position
     /// </summary>
     /// <param name="player">Player.</param>
     /// <returns>Is insertion successful.</returns>
-    public bool InsertPiece(Player player, Piece piece)
+    public bool InsertPiece(Piece piece)
     {
-        if (PositionOwnedBy != player) return false;
+        if (PositionOwnedBy != piece.Owner) return false;
         PieceInPosition = piece;
         isVacant = false;
         return true;
     }
 
     /// <summary>
-    /// Remove piece from position.
+    /// Remove piece from position to base.
     /// </summary>
     public void RemovePiece()
     {
-        PieceInPosition = null;
+        PieceInPosition.MoveToBase();
         isVacant = true;
     }
 
