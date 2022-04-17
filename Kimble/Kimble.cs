@@ -59,7 +59,7 @@ internal class Kimble
 
 
     /// <summary>
-    /// Give the player's pieces that can move
+    /// Find the player's pieces that can move
     /// to a particular position. 
     /// </summary>
     /// <param name="player"></param>
@@ -70,13 +70,19 @@ internal class Kimble
         List<Piece> pieces;
         if (diceNumber == 6) pieces = player.Pieces.ToList();
         else pieces = player.Pieces.Select(piece => piece).Where(piece => !piece.InBase).ToList();
-        
+
         int i = 0;
         while (i < pieces.Count)
         {
             Position candidate = pieces[i].Position;
-            for (int j = 0; j < diceNumber; j++) candidate = board.NextPosition(candidate);
+            // From base the piece can go only to the starting position
+            if (pieces[i].InBase) candidate = board.Positions[player.StartingPosition];
+            else // Other positions have to be calculated. 
+            {
+                for (int j = 0; j < diceNumber; j++) candidate = board.GiveNextPosition(player, candidate);
+            }
             if (!candidate.CanPlayerMove(player)) pieces.RemoveAt(i);
+            if (candidate.PieceInPosition.Owner == player) pieces.RemoveAt(i);
             // TODO: Player should be able to move forward in the safe.
             else i++;
         }
@@ -87,8 +93,9 @@ internal class Kimble
     {
         Random random = new Random();
         // Throw dice
-        int number = random.Next(7);
+        int diceNumber = random.Next(7);
         // Check which pieces can move. Note: Player can not move piece if target position is occupied by his own piece. 
+        var piecesToMove = PiecesToMove(playerInTurn, diceNumber);
 
         // Move selected piece
         // If there was enemy, move enemy to base

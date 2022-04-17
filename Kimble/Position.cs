@@ -44,7 +44,7 @@ public class Position
     /// <returns>Is insertion successful.</returns>
     public bool InsertPiece(Player player, Piece piece)
     {
-        if(PositionOwnedBy != player) return false;
+        if (PositionOwnedBy != player) return false;
         PieceInPosition = piece;
         isVacant = false;
         return true;

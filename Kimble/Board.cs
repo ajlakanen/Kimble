@@ -21,25 +21,19 @@ public class Board
         Positions = new Position[TotalNumberOfPositions];
     }
 
-    public Position NextPosition(Position position)
-    {
-        int current = Array.IndexOf(Positions, position);
-        return Positions[current + 1 % TotalNumberOfPositions];
-    }
-
     /// <summary>
     /// Give the next position that is not one of other players safe positions. 
     /// </summary>
     /// <param name="player"></param>
     /// <param name="currentPosition"></param>
     /// <returns></returns>
-    public int GiveNextPosition(Player player, int currentPosition)
+    public Position GiveNextPosition(Player player, Position currentPosition)
     {
-        int candidatePosition = currentPosition;
+        int candidatePosition = Array.IndexOf(Positions, currentPosition);
         do
         {
-            candidatePosition = currentPosition + 1 >= Positions.Length ? 0 : currentPosition + 1;
+            candidatePosition = candidatePosition + 1 >= Positions.Length ? 0 : candidatePosition + 1;
         } while (!Positions[candidatePosition].CanPlayerMove(player));
-        return candidatePosition;
+        return Positions[candidatePosition];
     }
 }
