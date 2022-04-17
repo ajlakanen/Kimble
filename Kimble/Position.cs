@@ -12,11 +12,16 @@ public class Position
     /// Safe is owned by a player. No other
     /// player can enter it.
     /// </summary>
-    public Player PositionOwnedBy { get; init; }
+    public Player OwnedBy { get; init; }
 
     public Piece PieceInPosition { get; private set; }
 
     private bool isVacant = true;
+
+    /// <summary>
+    /// Index on the board. In base, index is -1.
+    /// </summary>
+    public int Index { get; init; }
 
     public Position()
     {
@@ -28,7 +33,7 @@ public class Position
     /// <param name="player">Owner.</param>
     public Position(Player player)
     {
-        PositionOwnedBy = player;
+        OwnedBy = player;
     }
 
     public (bool isVacant, Piece piece) IsVacant()
@@ -44,7 +49,7 @@ public class Position
     /// <returns>Is insertion successful.</returns>
     public bool InsertPiece(Piece piece)
     {
-        if (PositionOwnedBy != piece.Owner) return false;
+        if (OwnedBy != piece.Owner) return false;
         PieceInPosition = piece;
         isVacant = false;
         return true;
@@ -66,6 +71,6 @@ public class Position
     /// <returns>Can player move</returns>
     public bool CanPlayerMove(Player player)
     {
-        return PositionOwnedBy == null || PositionOwnedBy == player;
+        return OwnedBy == null || OwnedBy == player;
     }
 }

@@ -14,6 +14,8 @@ public class Board
     /// </summary>
     public const int TotalNumberOfPositions = 44;
 
+    public List<Piece> Pieces { get; private set; }
+
     public Position[] Positions { get; private set; }
 
     public Board()

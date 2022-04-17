@@ -20,6 +20,9 @@ public static class Rules
     /// </summary>
     public static bool PiecesSkipOccupiedPositionsInSafe = false;
 
+    /// <summary>
+    /// Player colors and their correspondent starting positions (indices of the Positions table). 
+    /// </summary>
     public static readonly (Color color, int startingPosition)[] colorsAndStartingPositions =
     {
         (Color.Red, 0),
