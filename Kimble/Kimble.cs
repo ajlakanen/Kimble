@@ -67,13 +67,17 @@ internal class Kimble
     /// <returns></returns>
     public Piece[] PiecesToMove(Player player, int diceNumber)
     {
-        var pieces = player.Pieces.Select(piece => piece).Where(piece => !piece.InSafe && !piece.InBase).ToList();
+        List<Piece> pieces;
+        if (diceNumber == 6) pieces = player.Pieces.ToList();
+        else pieces = player.Pieces.Select(piece => piece).Where(piece => !piece.InBase).ToList();
+        
         int i = 0;
         while (i < pieces.Count)
         {
             Position candidate = pieces[i].Position;
             for (int j = 0; j < diceNumber; j++) candidate = board.NextPosition(candidate);
             if (!candidate.CanPlayerMove(player)) pieces.RemoveAt(i);
+            // TODO: Player should be able to move forward in the safe.
             else i++;
         }
         return pieces.ToArray();
