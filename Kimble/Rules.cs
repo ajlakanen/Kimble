@@ -19,4 +19,12 @@ public static class Rules
     /// Do the pieces skip occupied safe positions.
     /// </summary>
     public static bool PiecesSkipOccupiedPositionsInSafe = false;
+
+    public static readonly (Color color, int startingPosition)[] colorsAndStartingPositions =
+    {
+        (Color.Red, 0),
+        (Color.Blue, 10),
+        (Color.Yellow, 20),
+        (Color.Green, 30)
+    };
 }

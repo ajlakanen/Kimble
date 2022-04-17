@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kimble;
 
@@ -11,33 +9,26 @@ internal class Kimble
     private Player[] players;
     private Board board;
     private Player playerInTurn;
-    private readonly (Color color, int startingPosition)[] colorsAndStartingPositions =
-    {
-        (Color.Red, 0),
-        (Color.Blue, 10),
-        (Color.Yellow, 20),
-        (Color.Green, 30)
-    };
-
-
+    
     public void Initialize()
     {
         players = new Player[4];
         board = new Board();
 
         // Let's make the board
-        for (int i = 0; i < colorsAndStartingPositions.Length; i++)
+        for (int i = 0; i < Rules.colorsAndStartingPositions.Length; i++)
         {
             // Each player has his own color and starting position.
+            int startPos = Rules.colorsAndStartingPositions[i].startingPosition;
             Player player = new()
             {
-                PlayerColor = colorsAndStartingPositions[i].color,
-                StartingPosition = colorsAndStartingPositions[i].startingPosition
+                PlayerColor = Rules.colorsAndStartingPositions[i].color,
+                StartingPosition = startPos
             };
             players[i] = player;
 
             // Initialize basic positions for each player
-            for (int j = colorsAndStartingPositions[i].startingPosition; j < colorsAndStartingPositions[i].startingPosition + 7; j++)
+            for (int j = startPos; j < startPos + 7; j++)
             {
                 Position position = new Position();
                 board.Positions[j] = position;
@@ -114,8 +105,13 @@ internal class Kimble
             newPosition.InsertPiece(pieceToMove); // TODO: Can this fail??
         }
         // If all pieces are in safe, player in turn wins
+        if (playerInTurn.Pieces.All(piece => piece.InSafe)) return true;
+        
         // If dice showed 6, repeat Turn
+        if (diceNumber == 6) Turn();
+
         // Change player in turn to the next player that is still in the game. 
+        playerInTurn = players[Array.IndexOf(players, playerInTurn) + 1 % 4];
         return false;
     }
 }
