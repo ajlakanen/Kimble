@@ -25,10 +25,13 @@ internal class Kimble
         players = new Player[4];
         board = new Board();
 
+        // Let's make the board
         for (int i = 0; i < colorsAndStartingPositions.Length; i++)
         {
+            // Each player has his own color and starting position.
             Player player = new()
             {
+                PlayerColor = colorsAndStartingPositions[i].color,
                 StartingPosition = colorsAndStartingPositions[i].startingPosition
             };
             players[i] = player;
@@ -48,7 +51,13 @@ internal class Kimble
                 board.Positions[j] = position;
             }
         }
+
+        // Red player starts.
+        // TODO: Make better player selection procedure. 
+        playerInTurn = players[0];
     }
+
+
 
     public Piece[] PiecesToMove(Player player, int diceNumber)
     {
