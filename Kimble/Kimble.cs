@@ -58,19 +58,23 @@ internal class Kimble
     }
 
 
-
+    /// <summary>
+    /// Give the player's pieces that can move
+    /// to a particular position. 
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="diceNumber"></param>
+    /// <returns></returns>
     public Piece[] PiecesToMove(Player player, int diceNumber)
     {
         var pieces = player.Pieces.Select(piece => piece).Where(piece => !piece.InSafe && !piece.InBase).ToList();
         int i = 0;
-        while (i < pieces.Count())
+        while (i < pieces.Count)
         {
-
-            for (int j = 0; j < diceNumber; j++)
-            {
-                
-            }
-            i++;
+            Position candidate = pieces[i].Position;
+            for (int j = 0; j < diceNumber; j++) candidate = board.NextPosition(candidate);
+            if (!candidate.CanPlayerMove(player)) pieces.RemoveAt(i);
+            else i++;
         }
         return pieces.ToArray();
     }

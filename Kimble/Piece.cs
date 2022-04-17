@@ -9,7 +9,7 @@ namespace Kimble;
 public class Piece
 {
     public Player Owner { get; init; }
-    public Position position { get; private set; } = new Position();
+    public Position Position { get; private set; } = new Position();
     public bool InBase = true;
     public bool InSafe = false;
 
