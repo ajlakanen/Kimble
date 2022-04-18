@@ -14,11 +14,6 @@ public class Board
     public const int TotalNumberOfPositions = 60;
 
     /// <summary>
-    /// Pieces.
-    /// </summary>
-    private List<Piece> pieces;
-
-    /// <summary>
     /// Board positions.
     /// </summary>
     public Position[] Positions { get; private set; }
@@ -82,7 +77,7 @@ public class Board
             index = index + 1 >= this.Positions.Length ? 0 : index + 1;
             Position position = this.Positions[index];
             if (position is Base) continue;
-            else if (position is Safe && ((Safe)position).OwnedBy != player) continue;
+            else if (position is Safe safe && safe.OwnedBy != player) continue;
             else break;
         } while (true);
         return Positions[index];
