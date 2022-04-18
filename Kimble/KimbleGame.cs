@@ -10,23 +10,20 @@ namespace Kimble;
 public class KimbleGame : Game
 {
     Kimble kimble;
-    Dictionary<Player, string> playerPositions = new Dictionary<Player, string>();
-    List<Label> playerPositionLabels = new List<Label>();
-
+    readonly Dictionary<Player, string> playerPositions = new();
+    readonly List<Label> playerPositionLabels = new();
 
     public override void Begin()
     {
         kimble = new();
-
-        CreateLabels(Rules.colorsAndStartingPositions);
-
+        CreateLabels();
         NewTurn(kimble);
 
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
     }
 
-    private void CreateLabels((Color color, int startingPosition)[] colorsAndStartingPositions)
+    private void CreateLabels()
     {
         int x = -200;
         int y = -200;

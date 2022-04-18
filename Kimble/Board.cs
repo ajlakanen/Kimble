@@ -84,7 +84,7 @@ public class Board
                 candidate = CalculateNewPosition(player, diceNumber, candidate);
             }
             // If player's own piece is in the position, player can not move there. 
-            if (candidate.PlayerInPosition is not null && candidate.PlayerInPosition == player) movables.RemoveAt(i);
+            if (candidate.PositionOccupiedBy(player)) movables.RemoveAt(i);
             // TODO: Player should be able to move forward in the safe.
             else i++;
         }
@@ -98,8 +98,8 @@ public class Board
     /// <param name="oldPosition">Current position.</param>
     public void MovePieceToBase(Position oldPosition)
     {
-        if (oldPosition.PlayerInPosition == null) return;
-        Player player = oldPosition.PlayerInPosition;
+        if (oldPosition.IsVacant().player == null) return;
+        Player player = oldPosition.IsVacant().player;
         int firstBasePos = player.StartingPosition;
         int basePos = firstBasePos;
         do
@@ -114,7 +114,7 @@ public class Board
     /// </summary>
     /// <param name="oldPosition">Current position</param>
     /// <param name="newPosition">New position</param>
-    public void MovePieceToNewPosition(Position oldPosition, Position newPosition)
+    public static void MovePieceToNewPosition(Position oldPosition, Position newPosition)
     {
         oldPosition.MovePlayerTo(newPosition);
     }

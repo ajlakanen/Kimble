@@ -13,12 +13,12 @@ public static class Rules
     /// true = Pieces stop in the last safe vacant position, even though the dice shows greater number.
     /// false = Pieces have to move exactly as the dice tells, even if they have to come out of the safe.
     /// </summary>
-    public static bool PieceStopsInSafe = true;
+    public const bool PieceStopsInSafe = true;
 
     /// <summary>
     /// Do the pieces skip occupied safe positions.
     /// </summary>
-    public static bool PiecesSkipOccupiedPositionsInSafe = false;
+    public const bool PiecesSkipOccupiedPositionsInSafe = false;
 
     /// <summary>
     /// Player colors and their correspondent starting positions (indices of the Positions table).
