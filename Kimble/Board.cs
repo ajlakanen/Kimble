@@ -29,6 +29,10 @@ public class Board
         set { Positions[index] = value; }
     }
 
+    /// <summary>
+    /// Board
+    /// </summary>
+    /// <param name="players">Players</param>
     public Board(Player[] players)
     {
         Positions = new Position[TotalNumberOfPositions];
