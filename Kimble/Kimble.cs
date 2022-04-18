@@ -8,13 +8,13 @@ internal class Kimble
 {
     private readonly Player[] players = new Player[4];
     public readonly Board Board;
-    public Player playerInTurn { get; private set; }
+    public Player PlayerInTurn { get; private set; }
     public bool GameOver = false;
 
     public Kimble()
     {
         players = MakePlayers();
-        playerInTurn = players[0];
+        PlayerInTurn = players[0];
         Board = new Board(players);
     }
 
@@ -38,7 +38,7 @@ internal class Kimble
     {
         // Red player starts.
         // TODO: Make better player selection procedure. 
-        playerInTurn = players[0];
+        PlayerInTurn = players[0];
     }
 
 
@@ -115,11 +115,11 @@ internal class Kimble
     /// <returns>Movable pieces.</returns>
     public (int diceNumber, Position[]) ThrowDice()
     {
-        Random random = new Random();
+        Random random = new();
         // Throw dice
         int diceNumber = random.Next(7);
         // Check which pieces can move. Note: Player can not move piece if target position is occupied by his own piece. 
-        var piecesThatCanMove = MovablePositions(playerInTurn, diceNumber);
+        var piecesThatCanMove = MovablePositions(PlayerInTurn, diceNumber);
         if (piecesThatCanMove.Length == 0)
         {
             NextPlayersTurn();
@@ -141,7 +141,7 @@ internal class Kimble
         // var pieceToMove = piecesThatCanMove.First();
 
         // If there was opponent's piece, move opponent to base
-        var newPosition = CalculateNewPosition(playerInTurn, diceNumber, pieceToMove.Position);
+        var newPosition = CalculateNewPosition(PlayerInTurn, diceNumber, pieceToMove.Position);
         if (!(newPosition.IsVacant()).isVacant)
         {
             Board.MovePieceToBase(newPosition);
@@ -149,7 +149,7 @@ internal class Kimble
         }
 
         // If all pieces are in safe, player in turn wins
-        if (playerInTurn.Pieces.All(piece => piece.InSafe))
+        if (PlayerInTurn.Pieces.All(piece => piece.InSafe))
         {
             GameOver = true;
             return true;
@@ -165,6 +165,6 @@ internal class Kimble
     private void NextPlayersTurn()
     {
         // Change player in turn to the next player that is still in the game. 
-        playerInTurn = players[(Array.IndexOf(players, playerInTurn) + 1) % 4];
+        PlayerInTurn = players[(Array.IndexOf(players, PlayerInTurn) + 1) % 4];
     }
 }

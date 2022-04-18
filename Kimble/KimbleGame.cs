@@ -11,17 +11,17 @@ public class KimbleGame : Game
 {
     public override void Begin()
     {
-        Kimble kimble = new Kimble();
+        Kimble kimble = new();
         Position[] movablePositions;
         do
         {
             (int diceNumber, movablePositions) = kimble.ThrowDice();
-            MessageDisplay.Add($"{kimble.playerInTurn.PlayerColor} heitti: {diceNumber}");
-            if (movablePositions.Length==0) MessageDisplay.Add($"Vuoro vaihtuu. Vuorossa nyt: {kimble.playerInTurn.PlayerColor}");
+            MessageDisplay.Add($"{kimble.PlayerInTurn.PlayerColor} heitti: {diceNumber}");
+            if (movablePositions.Length==0) MessageDisplay.Add($"Vuoro vaihtuu. Vuorossa nyt: {kimble.PlayerInTurn.PlayerColor}");
         } while (movablePositions.Length == 0);
         string s = "";
         movablePositions.ForEach(p => s += kimble.Board.GetIndexOf(p) + ", ");
-        InputWindow iw = new InputWindow(s);
+        InputWindow iw = new(s);
         Add(iw);
         string selected = "";
         iw.TextEntered += delegate (InputWindow iw)
