@@ -32,31 +32,20 @@ public class Position
         else return (isVacant, PlayerInPosition);
     }
 
-    /// <summary>
-    /// Insert player into position.
-    /// </summary>
-    /// <param name="oldPosition">Player.</param>
-    /// <returns>Is insertion successful.</returns>
-    public void MovePieceToNewPosition(Position oldPosition)
-    {
-        PlayerInPosition = oldPosition.PlayerInPosition;
-        RemovePiece(oldPosition);
-        isVacant = false;
-    }
-
-    /// <summary>
-    /// Remove piece from position.
-    /// </summary>
-    public static void RemovePiece(Position position)
-    {
-        position.PlayerInPosition = null;
-        position.isVacant = true;
-    }
 
     public bool PositionOccupiedBy(Player player)
     {
         if (PlayerInPosition == null) return false;
         else if (PlayerInPosition == player) return true;
         else return false;
+    }
+
+    public void MovePlayerTo(Position newPosition)
+    {
+        if (newPosition.PlayerInPosition != null) throw new Exception("Player already in new position");
+        newPosition.PlayerInPosition = this.PlayerInPosition;
+        newPosition.isVacant = false;
+        this.PlayerInPosition = null;
+        this.isVacant = true;
     }
 }

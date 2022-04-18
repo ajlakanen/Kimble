@@ -111,7 +111,7 @@ internal class Kimble
         if (!(newPosition.IsVacant()).isVacant)
         {
             Board.MovePieceToBase(newPosition);
-            newPosition.MovePieceToNewPosition(oldPosition); // TODO: Can this fail??
+            newPosition.MovePlayerTo(oldPosition); // TODO: Can this fail??
         }
 
         // If all pieces are in safe, player in turn wins

@@ -86,11 +86,11 @@ public class Board
     /// <summary>
     /// Move a piece from position to base.
     /// </summary>
-    /// <param name="position">Current position.</param>
-    public void MovePieceToBase(Position position)
+    /// <param name="oldPosition">Current position.</param>
+    public void MovePieceToBase(Position oldPosition)
     {
-        if (position.PlayerInPosition == null) return;
-        Player player = position.PlayerInPosition;
+        if (oldPosition.PlayerInPosition == null) return;
+        Player player = oldPosition.PlayerInPosition;
         int firstBasePos = player.StartingPosition;
         int basePos = firstBasePos;
         do
@@ -101,9 +101,21 @@ public class Board
             }
             else
             {
-                this[basePos].MovePieceToNewPosition(position);
+                MovePieceToNewPosition(oldPosition, this[basePos]);
             }
         } while (basePos < firstBasePos + 4);
+    }
+
+    /// <summary>
+    /// Insert player into position.
+    /// </summary>
+    /// <param name="oldPosition">Player.</param>
+    /// <returns>Is insertion successful.</returns>
+    public void MovePieceToNewPosition(Position oldPosition, Position newPosition)
+    {
+        oldPosition.MovePlayerTo(newPosition);
+        //RemovePiece(oldPosition);
+        //newPosition.isVacant = false;
     }
 
     public int GetIndexOf(Position position)
