@@ -13,5 +13,6 @@ public class Base : Position
     public Base(Player player)
     {
         OwnedBy = player;
+        base.PlayerInPosition = player;
     }
 }

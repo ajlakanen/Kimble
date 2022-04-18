@@ -13,7 +13,7 @@ public class Position
     /// <summary>
     /// Piece that occupies the position. 
     /// </summary>
-    public Player PlayerInPosition { get; private set; }
+    public Player PlayerInPosition { get; protected set; }
 
     /// <summary>
     /// Position
