@@ -63,24 +63,29 @@ public class Board
         }
     }
 
-    /// <summary>
-    /// Next position on board that is not a base or opponents safe.
-    /// </summary>
-    /// <param name="player"></param>
-    /// <param name="oldPosition"></param>
-    /// <returns></returns>
-    internal Position NextBoardPosition(Player player, Position oldPosition)
+    public Position[] MovablePositions(Player player, int diceNumber)
     {
-        int index = Array.IndexOf(this.Positions, oldPosition);
-        do
+        List<Position> movables;
+        if (diceNumber == 6) movables = Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(player)).ToList();
+        else movables = Positions.Select(pos => pos).Where(pos => pos is not Base && pos.PositionOccupiedBy(player)).ToList();
+
+        int i = 0;
+        while (i < movables.Count)
         {
-            index = index + 1 >= this.Positions.Length ? 0 : index + 1;
-            Position position = this.Positions[index];
-            if (position is Base) continue;
-            else if (position is Safe safe && safe.OwnedBy != player) continue;
-            else break;
-        } while (true);
-        return Positions[index];
+            Position candidate = movables[i];
+            // From base the piece can go only to the starting position
+            if (movables[i] is Base) candidate = Positions[player.StartingPosition + 4];
+            else // Other positions have to be calculated. 
+            {
+                candidate = CalculateNewPosition(player, diceNumber, candidate);
+            }
+            // If player's own piece is in the position, player can not move there. 
+            if (candidate.PlayerInPosition is not null && candidate.PlayerInPosition == player) movables.RemoveAt(i);
+            // TODO: Player should be able to move forward in the safe.
+            else i++;
+        }
+
+        return movables.ToArray();
     }
 
     /// <summary>
@@ -95,31 +100,67 @@ public class Board
         int basePos = firstBasePos;
         do
         {
-            if (!this[basePos].IsVacant().isVacant)
-            {
-                basePos++;
-            }
-            else
-            {
-                MovePieceToNewPosition(oldPosition, this[basePos]);
-            }
+            if (!this[basePos].IsVacant().isVacant) basePos++;
+            else MovePieceToNewPosition(oldPosition, this[basePos]);
         } while (basePos < firstBasePos + 4);
     }
 
     /// <summary>
-    /// Insert player into position.
+    /// Move player to a new position.
     /// </summary>
-    /// <param name="oldPosition">Player.</param>
-    /// <returns>Is insertion successful.</returns>
+    /// <param name="oldPosition">Current position</param>
+    /// <param name="newPosition">New position</param>
     public void MovePieceToNewPosition(Position oldPosition, Position newPosition)
     {
         oldPosition.MovePlayerTo(newPosition);
-        //RemovePiece(oldPosition);
-        //newPosition.isVacant = false;
+    }
+
+    /// <summary>
+    /// Move player to a new position.
+    /// </summary>
+    /// <param name="oldPosition">Current position</param>
+    /// <param name="newPosition">New position</param>
+    public void MovePieceToNewPosition(int oldPosition, int newPosition)
+    {
+        MovePieceToNewPosition(Positions[oldPosition], Positions[newPosition]);
     }
 
     public int GetIndexOf(Position position)
     {
         return Array.IndexOf(this.Positions, position);
+    }
+
+    internal Position CalculateNewPosition(Player player, int diceNumber, Position candidate)
+    {
+        for (int j = 0; j < diceNumber; j++)
+        {
+            candidate = NextBoardPosition(player, candidate);
+            // If the position is player's LAST own safe, we stop there. 
+            if (candidate is Safe && GetIndexOf(candidate) == player.LastSafePosition) return candidate;
+        }
+        return candidate;
+    }
+
+    /// <summary>
+    /// Next position on board that is not a base or opponents safe.
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="oldPosition"></param>
+    /// <returns></returns>
+    private Position NextBoardPosition(Player player, Position oldPosition)
+    {
+        int index = Array.IndexOf(this.Positions, oldPosition);
+        do
+        {
+            index = index + 1 >= this.Positions.Length ? 0 : index + 1;
+            Position position = this.Positions[index];
+            // Bases can not be re-entered from the base positions.
+            if (position is Base) continue;
+
+            // Player can not go to others' safes.
+            else if (position is Safe safe && safe.OwnedBy != player) continue;
+            else break;
+        } while (true);
+        return Positions[index];
     }
 }
