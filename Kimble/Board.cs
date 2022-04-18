@@ -83,9 +83,12 @@ public class Board
         return Positions[index];
     }
 
+    /// <summary>
+    /// Move a piece from position to base.
+    /// </summary>
+    /// <param name="position">Current position.</param>
     public void MovePieceToBase(Position position)
     {
-        
         if (position.PlayerInPosition == null) return;
         Player player = position.PlayerInPosition;
         int firstBasePos = player.StartingPosition;
@@ -98,8 +101,7 @@ public class Board
             }
             else
             {
-                position.RemovePiece();
-                this[basePos].InsertPiece(player);
+                this[basePos].MovePieceToNewPosition(position);
             }
         } while (basePos < firstBasePos + 4);
     }

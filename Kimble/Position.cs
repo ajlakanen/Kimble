@@ -35,21 +35,22 @@ public class Position
     /// <summary>
     /// Insert player into position.
     /// </summary>
-    /// <param name="player">Player.</param>
+    /// <param name="oldPosition">Player.</param>
     /// <returns>Is insertion successful.</returns>
-    public void InsertPiece(Player player)
+    public void MovePieceToNewPosition(Position oldPosition)
     {
-        PlayerInPosition = player;
+        PlayerInPosition = oldPosition.PlayerInPosition;
+        RemovePiece(oldPosition);
         isVacant = false;
     }
 
     /// <summary>
     /// Remove piece from position.
     /// </summary>
-    public void RemovePiece()
+    public static void RemovePiece(Position position)
     {
-        PlayerInPosition = null;
-        isVacant = true;
+        position.PlayerInPosition = null;
+        position.isVacant = true;
     }
 
     public bool PositionOccupiedBy(Player player)

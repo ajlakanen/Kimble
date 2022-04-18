@@ -41,40 +41,6 @@ internal class Kimble
         PlayerInTurn = players[0];
     }
 
-
-    /// <summary>
-    /// Find the player's pieces that can move
-    /// to a particular position. 
-    /// </summary>
-    /// <param name="player"></param>
-    /// <param name="diceNumber"></param>
-    /// <returns></returns>
-    public Piece[] PiecesThatCanMove(Player player, int diceNumber)
-    {
-        List<Piece> pieces;
-        if (diceNumber == 6) pieces = player.Pieces.ToList();
-        else pieces = player.Pieces.Select(piece => piece).Where(piece => !piece.InBase).ToList();
-
-        int i = 0;
-        while (i < pieces.Count)
-        {
-            Position candidate = pieces[i].Position;
-            // From base the piece can go only to the starting position
-            if (pieces[i].InBase) candidate = Board.Positions[player.StartingPosition + 4];
-            else // Other positions have to be calculated. 
-            {
-                candidate = CalculateNewPosition(player, diceNumber, candidate);
-            }
-            // Player can not go to others' safes.
-            // TODO: if (!candidate.CanPlayerMove(player)) pieces.RemoveAt(i);
-            // If player's own piece is in the position, player can not move there. 
-            if (candidate.PieceInPosition != null && candidate.PieceInPosition.Owner == player) pieces.RemoveAt(i);
-            // TODO: Player should be able to move forward in the safe.
-            else i++;
-        }
-        return pieces.ToArray();
-    }
-
     public Position[] MovablePositions(Player player, int diceNumber)
     {
         List<Position> movables;
@@ -94,7 +60,7 @@ internal class Kimble
             // Player can not go to others' safes.
             // TODO: if (!candidate.CanPlayerMove(player)) pieces.RemoveAt(i);
             // If player's own piece is in the position, player can not move there. 
-            if (candidate.PieceInPosition is not null && candidate.PieceInPosition.Owner == player) movables.RemoveAt(i);
+            if (candidate.PlayerInPosition is not null && candidate.PlayerInPosition == player) movables.RemoveAt(i);
             // TODO: Player should be able to move forward in the safe.
             else i++;
         }
@@ -131,21 +97,21 @@ internal class Kimble
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="pieceToMove"></param>
+    /// <param name="oldPosition"></param>
     /// <param name="diceNumber"></param>
     /// <returns>Has the player won</returns>
-    public bool Move(Piece pieceToMove, int diceNumber)
+    public bool Move(Position oldPosition, int diceNumber)
     {
         // TODO: Interact with player
         // Move the selected piece
         // var pieceToMove = piecesThatCanMove.First();
 
         // If there was opponent's piece, move opponent to base
-        var newPosition = CalculateNewPosition(PlayerInTurn, diceNumber, pieceToMove.Position);
+        var newPosition = CalculateNewPosition(PlayerInTurn, diceNumber, oldPosition);
         if (!(newPosition.IsVacant()).isVacant)
         {
             Board.MovePieceToBase(newPosition);
-            newPosition.InsertPiece(pieceToMove); // TODO: Can this fail??
+            newPosition.MovePieceToNewPosition(oldPosition); // TODO: Can this fail??
         }
 
         // If all pieces are in safe, player in turn wins
