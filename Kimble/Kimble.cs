@@ -6,16 +6,16 @@ namespace Kimble;
 
 internal class Kimble
 {
-    private readonly Player[] players = new Player[4];
+    public readonly Player[] Players = new Player[4];
     public readonly Board Board;
     public Player PlayerInTurn { get; private set; }
     public bool GameOver = false;
 
     public Kimble()
     {
-        players = MakePlayers();
-        PlayerInTurn = players[0];
-        Board = new Board(players);
+        Players = MakePlayers();
+        PlayerInTurn = Players[0];
+        Board = new Board(Players);
     }
 
     private Player[] MakePlayers()
@@ -30,16 +30,16 @@ internal class Kimble
                 StartingPosition = startPos,
                 LastSafePosition = startPos + 14
             };
-            players[i] = player;
+            Players[i] = player;
         }
-        return players;
+        return Players;
     }
 
     public void Initialize()
     {
         // Red player starts.
         // TODO: Make better player selection procedure. 
-        PlayerInTurn = players[0];
+        PlayerInTurn = Players[0];
     }
 
     
@@ -105,6 +105,11 @@ internal class Kimble
     private void NextPlayersTurn()
     {
         // Change player in turn to the next player that is still in the game. 
-        PlayerInTurn = players[(Array.IndexOf(players, PlayerInTurn) + 1) % 4];
+        PlayerInTurn = Players[(Array.IndexOf(Players, PlayerInTurn) + 1) % 4];
+    }
+
+    public string PrintPositions(Player player)
+    {
+        return string.Join(", ", Board.Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(player)).Select(pos => Board.GetIndexOf(pos)));
     }
 }

@@ -9,12 +9,14 @@ namespace Kimble;
 
 public class KimbleGame : Game
 {
+    Kimble kimble;
     Dictionary<Player, string> playerPositions = new Dictionary<Player, string>();
     List<Label> playerPositionLabels = new List<Label>();
 
+
     public override void Begin()
     {
-        Kimble kimble = new();
+        kimble = new();
 
         CreateLabels(Rules.colorsAndStartingPositions);
 
@@ -37,12 +39,12 @@ public class KimbleGame : Game
             { Color.Yellow, Jypeli.Color.Yellow }
         };
 
-        foreach (var item in colorsAndStartingPositions)
+        foreach (var player in kimble.Players)
         {
             Label label = new()
             {
-                TextColor = colors[item.color],
-                Text = item.color.ToString(),
+                TextColor = colors[player.PlayerColor],
+                Text = $"{player.PlayerColor.ToString()}: {kimble.PrintPositions(player)}",
                 Color = Jypeli.Color.Black
             };
             label.Left = x;
@@ -50,7 +52,7 @@ public class KimbleGame : Game
             y -= (int)(label.Height * 1.5);
             Add(label);
         }
-        
+
     }
 
     private void NewTurn(Kimble kimble)
