@@ -27,8 +27,8 @@ public static class Rules
     public static readonly (Color color, int startingPosition)[] colorsAndStartingPositions =
     {
         (Color.Red, 0),
-        (Color.Blue, 14),
-        (Color.Yellow, 28),
-        (Color.Green, 42)
+        (Color.Blue, 15),
+        (Color.Yellow, 30),
+        (Color.Green, 45)
     };
 }

@@ -12,15 +12,15 @@ public class KimbleGame : Game
     public override void Begin()
     {
         Kimble kimble = new Kimble();
-        Piece[] pieces;
+        Position[] movablePositions;
         do
         {
-            (int diceNumber, pieces) = kimble.ThrowDice();
+            (int diceNumber, movablePositions) = kimble.ThrowDice();
             MessageDisplay.Add($"{kimble.playerInTurn.PlayerColor} heitti: {diceNumber}");
-            if (pieces == null) MessageDisplay.Add($"Vuoro vaihtuu. Vuorossa nyt: {kimble.playerInTurn.PlayerColor}");
-        } while (pieces == null);
+            if (movablePositions.Length==0) MessageDisplay.Add($"Vuoro vaihtuu. Vuorossa nyt: {kimble.playerInTurn.PlayerColor}");
+        } while (movablePositions.Length == 0);
         string s = "";
-        pieces.ForEach(p => s += p.Position + ", ");
+        movablePositions.ForEach(p => s += kimble.Board.GetIndexOf(p) + ", ");
         InputWindow iw = new InputWindow(s);
         Add(iw);
         string selected = "";

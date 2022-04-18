@@ -13,10 +13,21 @@ public class Board
     /// </summary>
     public const int TotalNumberOfPositions = 60;
 
-    public List<Piece> Pieces { get; private set; }
+    /// <summary>
+    /// Pieces.
+    /// </summary>
+    private List<Piece> pieces;
 
+    /// <summary>
+    /// Board positions.
+    /// </summary>
     public Position[] Positions { get; private set; }
 
+    /// <summary>
+    /// Board position.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
     public Position this[int index]
     {
         get { return Positions[index]; }
@@ -36,14 +47,14 @@ public class Board
             // Base
             for (int j = startPos; j < startPos + 4; j++)
             {
-                SafeOrBase @base = new SafeOrBase(players[i]);
+                Base @base = new(players[i]);
                 this[j] = @base;
             }
 
             // Basic positions
             for (int j = startPos + 4; j < startPos + 4 + 7; j++)
             {
-                Position position = new Position();
+                Position position = new();
                 this[j] = position;
             }
 
@@ -51,33 +62,55 @@ public class Board
             int safeStartsFrom = (startPos + 4 + 7) % Board.TotalNumberOfPositions;
             for (int j = safeStartsFrom; j < safeStartsFrom + 4; j++)
             {
-                SafeOrBase safe = new SafeOrBase(players[i]);
+                Safe safe = new(players[i]);
                 this[j] = safe;
             }
         }
     }
 
-    internal Position GiveNextPosition(Player player, Position candidate)
+    /// <summary>
+    /// Next position on board that is not a base or opponents safe.
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="oldPosition"></param>
+    /// <returns></returns>
+    internal Position NextBoardPosition(Player player, Position oldPosition)
     {
-        throw new NotImplementedException();
+        int index = Array.IndexOf(this.Positions, oldPosition);
+        do
+        {
+            index = index + 1 >= this.Positions.Length ? 0 : index + 1;
+            Position position = this.Positions[index];
+            if (position is Base) continue;
+            else if (position is Safe && ((Safe)position).OwnedBy != player) continue;
+            else break;
+        } while (true);
+        return Positions[index];
     }
 
     public void MovePieceToBase(Position position)
     {
-        if (position.PieceInPosition == null) return;
-        Piece piece = position.PieceInPosition;
-        int firstBasePos = position.PieceInPosition.Owner.StartingPosition;
+        
+        if (position.PlayerInPosition == null) return;
+        Player player = position.PlayerInPosition;
+        int firstBasePos = player.StartingPosition;
+        int basePos = firstBasePos;
         do
         {
-            if (!this[firstBasePos].IsVacant().isVacant)
+            if (!this[basePos].IsVacant().isVacant)
             {
-                firstBasePos++;
+                basePos++;
             }
             else
             {
                 position.RemovePiece();
-                this[firstBasePos].InsertPiece(piece);
+                this[basePos].InsertPiece(player);
             }
-        } while (firstBasePos < firstBasePos + 4);
+        } while (basePos < firstBasePos + 4);
+    }
+
+    public int GetIndexOf(Position position)
+    {
+        return Array.IndexOf(this.Positions, position);
     }
 }

@@ -13,7 +13,7 @@ public class Position
     /// <summary>
     /// Piece that occupies the position. 
     /// </summary>
-    public Piece PieceInPosition { get; private set; }
+    public Player PlayerInPosition { get; private set; }
 
     /// <summary>
     /// Position
@@ -26,10 +26,10 @@ public class Position
     /// Is position vacant. If not vacant, return also the piece in the position. 
     /// </summary>
     /// <returns></returns>
-    public (bool isVacant, Piece piece) IsVacant()
+    public (bool isVacant, Player player) IsVacant()
     {
         if (isVacant) return (isVacant, null);
-        else return (isVacant, PieceInPosition);
+        else return (isVacant, PlayerInPosition);
     }
 
     /// <summary>
@@ -37,9 +37,9 @@ public class Position
     /// </summary>
     /// <param name="player">Player.</param>
     /// <returns>Is insertion successful.</returns>
-    public void InsertPiece(Piece piece)
+    public void InsertPiece(Player player)
     {
-        PieceInPosition = piece;
+        PlayerInPosition = player;
         isVacant = false;
     }
 
@@ -48,7 +48,14 @@ public class Position
     /// </summary>
     public void RemovePiece()
     {
-        PieceInPosition = null;
+        PlayerInPosition = null;
         isVacant = true;
+    }
+
+    public bool PositionOccupiedBy(Player player)
+    {
+        if (PlayerInPosition == null) return false;
+        else if (PlayerInPosition == player) return true;
+        else return false;
     }
 }
