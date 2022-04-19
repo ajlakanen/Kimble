@@ -11,62 +11,29 @@ public class KimbleGame : Game
 {
     Kimble kimble;
     readonly Dictionary<Player, string> playerPositions = new();
-    readonly List<Label> playerPositionLabels = new();
+    Dictionary<Player, Label> playerPositionLabels;
 
     public override void Begin()
     {
         kimble = new();
-        CreateLabels();
+        UI ui = new(this, kimble);
+        playerPositionLabels = ui.CreateLabels();
         NewTurn(kimble);
 
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
-    }
-
-    private void CreateLabels()
-    {
-        int x = -200;
-        int y = -200;
-
-        Dictionary<Color, Jypeli.Color> colors = new()
-        {
-            { Color.Red, Jypeli.Color.Red },
-            { Color.Green, Jypeli.Color.Green },
-            { Color.Blue, Jypeli.Color.Blue },
-            { Color.Yellow, Jypeli.Color.Yellow }
-        };
-
-        foreach (var player in kimble.Players)
-        {
-            Label label = new()
-            {
-                TextColor = colors[player.PlayerColor],
-                Text = $"{player.PlayerColor.ToString()}: {kimble.PrintPositions(player)}",
-                Color = Jypeli.Color.Black
-            };
-            label.Left = x;
-            label.Top = y;
-            y -= (int)(label.Height * 1.5);
-            Add(label);
-        }
-
-    }
+    }   
 
     private void NewTurn(Kimble kimble)
     {
-        int diceNumber;
-        Position[] movablePositions;
-        do
-        {
-            (diceNumber, movablePositions) = kimble.ThrowDice();
-            MessageDisplay.Add($"{kimble.PlayerInTurn.PlayerColor} heitti: {diceNumber}");
-            if (movablePositions.Length == 0) MessageDisplay.Add($"Vuoro vaihtuu. Vuorossa nyt: {kimble.PlayerInTurn.PlayerColor}");
-        } while (movablePositions.Length == 0);
-        string s = "";
-        movablePositions.ForEach(p => s += kimble.Board.GetIndexOf(p) + ", ");
+        string movablePositions = Throw(out int diceNumber);
+        SelectAndMove(diceNumber, movablePositions);
+    }
+
+    private void SelectAndMove(int diceNumber, string s)
+    {
         InputWindow iw = new(s);
         Add(iw);
-        string selected = "";
         iw.TextEntered += delegate (InputWindow iw)
         {
             int selected = int.Parse(iw.InputBox.Text);
@@ -75,6 +42,19 @@ public class KimbleGame : Game
             kimble.Move(selected, diceNumber);
             NewTurn(kimble);
         };
+    }
+
+    private string Throw(out int diceNumber)
+    {
+        Position[] movablePositions;
+        do
+        {
+            (diceNumber, movablePositions) = kimble.ThrowDice();
+            MessageDisplay.Add($"{kimble.PlayerInTurn.Color} heitti: {diceNumber}");
+            if (movablePositions.Length == 0) MessageDisplay.Add($"Vuoro vaihtuu. Vuorossa nyt: {kimble.PlayerInTurn.Color}");
+        } while (movablePositions.Length == 0);
+        return kimble.PrintPositions(kimble.PlayerInTurn);
+        //movablePositions.ForEach(p => s += kimble.Board.GetIndexOf(p) + ", ");
     }
 }
 

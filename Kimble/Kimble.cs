@@ -26,7 +26,7 @@ internal class Kimble
             int startPos = Rules.colorsAndStartingPositions[i].startingPosition;
             Player player = new()
             {
-                PlayerColor = Rules.colorsAndStartingPositions[i].color,
+                Color = Rules.colorsAndStartingPositions[i].color,
                 StartingPosition = startPos,
                 LastSafePosition = startPos + 14
             };
@@ -54,7 +54,7 @@ internal class Kimble
     {
         Random random = new();
         // Throw dice
-        int diceNumber = random.Next(7);
+        int diceNumber = random.Next(1, 7);
         // Check which pieces can move. Note: Player can not move piece if target position is occupied by his own piece. 
         var piecesThatCanMove = Board.MovablePositions(PlayerInTurn, diceNumber);
         if (piecesThatCanMove.Length == 0)
