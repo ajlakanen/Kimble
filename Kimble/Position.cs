@@ -8,12 +8,26 @@ namespace Kimble;
 
 public class Position
 {
-    private bool isVacant = true;
+    protected bool isVacant = true;
 
     /// <summary>
     /// Piece that occupies the position. 
     /// </summary>
-    protected Player PlayerInPosition { get; set; }
+
+    private Player playerInPosition;
+    protected Player PlayerInPosition
+    {
+        get
+        {
+            return playerInPosition;
+        }
+        set
+        {
+            playerInPosition = value;
+            if (value == null) isVacant = true;
+            else isVacant = false;
+        }
+    }
 
     /// <summary>
     /// Position
@@ -28,10 +42,8 @@ public class Position
     /// <returns></returns>
     public (bool isVacant, Player player) IsVacant()
     {
-        if (isVacant) return (isVacant, null);
-        else return (isVacant, PlayerInPosition);
+        return isVacant ? (isVacant, null) : (isVacant, PlayerInPosition);
     }
-
 
     public bool PositionOccupiedBy(Player player)
     {
@@ -44,8 +56,6 @@ public class Position
     {
         if (newPosition.PlayerInPosition != null) throw new Exception("Player already in new position");
         newPosition.PlayerInPosition = this.PlayerInPosition;
-        newPosition.isVacant = false;
         this.PlayerInPosition = null;
-        this.isVacant = true;
     }
 }

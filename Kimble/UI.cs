@@ -15,6 +15,9 @@ internal class UI
     Dictionary<Player, Label> labels;
     Label dice;
     Label youCanMove;
+    GameObject pointer;
+    double uiInitialX;
+    double uiInitialY;
 
     public UI(Game game, Kimble kimble)
     {
@@ -24,8 +27,20 @@ internal class UI
 
     public void CreateLabels(double x, double y)
     {
+        uiInitialX = x;
+        uiInitialY = y;
         Vector bottom = CreatePlayerLabels(x, y);
         CreateDiceLabel(bottom.X, bottom.Y);
+        CreatePointer(x, y);
+    }
+
+    private void CreatePointer(double x, double y)
+    {
+        pointer = new GameObject(20, 80, Shape.Triangle);
+        pointer.Angle = Angle.FromRadians(-Math.PI / 2);
+        pointer.X = x - pointer.Height;
+        pointer.Y = y - 10;
+        game.Add(pointer);
     }
 
     void CreateDiceLabel(double x, double y)
@@ -48,7 +63,6 @@ internal class UI
             TextColor = Jypeli.Color.White,
             Text = "You can move: "
         };
-
 
         game.Add(youCanMove);
     }
@@ -90,6 +104,9 @@ internal class UI
             label.Value.Text = $"{label.Key.Color.Stringify()}: {kimble.PrintPositions(label.Key)}";
         }
         dice.Text = $"Dice shows: {kimble.DiceNow}";
+
+        pointer.Y = uiInitialY - (Array.IndexOf(kimble.Players, kimble.PlayerInTurn) * dice.Height * 1.5) - 10;
+        pointer.X = uiInitialX - pointer.Height;
     }
 
     internal void UpdateMovables(string s)

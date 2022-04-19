@@ -105,8 +105,15 @@ public class Board
         int basePos = firstBasePos;
         do
         {
-            if (!this[basePos].IsVacant().isVacant) basePos++;
-            else MovePieceToNewPosition(oldPosition, this[basePos]);
+            if (!(this[basePos].IsVacant().isVacant))
+            {
+                basePos++;
+            }
+            else
+            {
+                MovePieceToNewPosition(oldPosition, this[basePos]);
+                break;
+            }
         } while (basePos < firstBasePos + 4);
     }
 

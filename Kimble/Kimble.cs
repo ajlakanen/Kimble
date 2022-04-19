@@ -71,9 +71,10 @@ internal class Kimble
     {
         // Move the selected piece
         var newPosition = Board.CalculateNewPosition(PlayerInTurn, diceNumber, oldPosition);
+        var newPositionIndex = Board.GetIndexOf(newPosition);
 
         // If there was opponent's piece, move opponent to base
-        if (!(newPosition.IsVacant()).isVacant)
+        if (!(newPosition.IsVacant().isVacant))
         {
             Board.MovePieceToBase(newPosition);
         }
