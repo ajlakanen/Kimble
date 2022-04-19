@@ -71,7 +71,8 @@ public class Board
     {
         List<Position> movables;
         if (diceNumber == 6) movables = Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(player)).ToList();
-        else movables = Positions.Select(pos => pos).Where(pos => pos is not Base && pos.PositionOccupiedBy(player)).ToList();
+        else 
+            movables = Positions.Select(pos => pos).Where(pos => pos is not Base && pos.PositionOccupiedBy(player)).ToList();
 
         int i = 0;
         while (i < movables.Count)
@@ -134,15 +135,16 @@ public class Board
         return Array.IndexOf(this.Positions, position);
     }
 
-    internal Position CalculateNewPosition(Player player, int diceNumber, Position candidate)
+    internal Position CalculateNewPosition(Player player, int diceNumber, Position oldPosition)
     {
+        if (oldPosition is Base) return Positions[player.StartingPosition + 4];
         for (int j = 0; j < diceNumber; j++)
         {
-            candidate = NextBoardPosition(player, candidate);
+            oldPosition = NextBoardPosition(player, oldPosition);
             // If the position is player's LAST own safe, we stop there. 
-            if (candidate is Safe && GetIndexOf(candidate) == player.LastSafePosition) return candidate;
+            if (oldPosition is Safe && GetIndexOf(oldPosition) == player.LastSafePosition) return oldPosition;
         }
-        return candidate;
+        return oldPosition;
     }
 
     /// <summary>

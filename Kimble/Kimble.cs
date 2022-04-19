@@ -9,6 +9,7 @@ internal class Kimble
     public readonly Player[] Players = new Player[4];
     public readonly Board Board;
     public Player PlayerInTurn { get; private set; }
+    public int DiceNow { get; set; }
     public bool GameOver = false;
 
     public Kimble()
@@ -35,17 +36,6 @@ internal class Kimble
         return Players;
     }
 
-    public void Initialize()
-    {
-        // Red player starts.
-        // TODO: Make better player selection procedure. 
-        PlayerInTurn = Players[0];
-    }
-
-    
-
-    
-
     /// <summary>
     /// Throw dice, return the pieces that can move. 
     /// </summary>
@@ -55,14 +45,15 @@ internal class Kimble
         Random random = new();
         // Throw dice
         int diceNumber = random.Next(1, 7);
+        DiceNow = diceNumber;
         // Check which pieces can move. Note: Player can not move piece if target position is occupied by his own piece. 
-        var piecesThatCanMove = Board.MovablePositions(PlayerInTurn, diceNumber);
+        var piecesThatCanMove = Board.MovablePositions(PlayerInTurn, DiceNow);
         if (piecesThatCanMove.Length == 0)
         {
             NextPlayersTurn();
-            return (diceNumber, piecesThatCanMove);
+            return (DiceNow, piecesThatCanMove);
         }
-        return (diceNumber, piecesThatCanMove);
+        return (DiceNow, piecesThatCanMove);
     }
 
     public bool Move(int oldPosition, int diceNumber)
@@ -85,8 +76,9 @@ internal class Kimble
         if (!(newPosition.IsVacant()).isVacant)
         {
             Board.MovePieceToBase(newPosition);
-            newPosition.MovePlayerTo(oldPosition); // TODO: Can this fail??
         }
+
+        oldPosition.MovePlayerTo(newPosition); // TODO: Can this fail??
 
         // If all pieces are in safe, player in turn wins
         if (Board.Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(PlayerInTurn)).All(pos => pos is Safe))
@@ -96,7 +88,11 @@ internal class Kimble
         }
 
         // If dice showed 6, repeat the Turn with the same player. 
-        if (diceNumber == 6) ThrowDice();
+        if (diceNumber == 6)
+        {
+            ThrowDice();
+            return false;
+        }
 
         NextPlayersTurn();
         return false;
