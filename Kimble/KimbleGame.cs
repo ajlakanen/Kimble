@@ -17,7 +17,7 @@ public class KimbleGame : Game
     {
         kimble = new();
         UI ui = new(this, kimble);
-        playerPositionLabels = ui.CreateLabels();
+        playerPositionLabels = ui.CreateLabels(-200, -200);
         NewTurn(kimble);
 
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");

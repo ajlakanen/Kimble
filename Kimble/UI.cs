@@ -19,11 +19,9 @@ internal class UI
         this.kimble = kimble;
     }
 
-    public Dictionary<Player, Label> CreateLabels()
+    public Dictionary<Player, Label> CreateLabels(int x, int y)
     {
         Dictionary<Player, Label> playerPositionLabels = new();
-        int x = -200;
-        int y = -200;
 
         Dictionary<Color, Jypeli.Color> colors = new()
         {
