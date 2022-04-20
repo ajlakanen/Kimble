@@ -29,7 +29,7 @@ internal class Kimble
             {
                 Color = Rules.colorsAndStartingPositions[i].color,
                 StartingPosition = startPos,
-                LastSafePosition = startPos + 14
+                LastSafePosition = startPos - 1 < 0 ? startPos - 1 + Board.TotalNumberOfPositions : startPos - 1
             };
             Players[i] = player;
         }

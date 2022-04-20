@@ -101,7 +101,7 @@ internal class UI
     {
         foreach (var label in labels)
         {
-            label.Value.Text = $"{label.Key.Color.Stringify()}: {kimble.PrintPositions(label.Key)}";
+            label.Value.Text = $"{label.Key.Color.Stringify()} ({label.Key.LastSafePosition}): {kimble.PrintPositions(label.Key)}";
         }
         dice.Text = $"Dice shows: {kimble.DiceNow}";
 

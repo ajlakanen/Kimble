@@ -58,7 +58,7 @@ public class Board
             }
 
             // Safe 
-            int safeStartsFrom = (startPos + 4 + 7) % Board.TotalNumberOfPositions;
+            int safeStartsFrom = (startPos - 4) < 0 ? startPos - 4 + Board.TotalNumberOfPositions : (startPos - 4) % Board.TotalNumberOfPositions;
             for (int j = safeStartsFrom; j < safeStartsFrom + 4; j++)
             {
                 Safe safe = new(players[i]);
@@ -95,7 +95,7 @@ public class Board
 
             // From base the piece can go only to the starting position
             if (movable is Base) newPosition = Positions[player.StartingPosition + 4];
-            else if (InLastVacantSafePosition(movable, player))
+            else if (IsCurrentPositionLastVacantSafe(movable, player))
             {
                 movables.RemoveAt(i);
                 continue;
@@ -107,6 +107,7 @@ public class Board
 
             // Second, we'll check if player's own piece is in the position.
             // If it is, player can not move there. 
+            // TODO: Refactor this in function so that everything is not glued together. 
             if (newPosition.PositionOccupiedBy(player)) movables.RemoveAt(i);
 
             // TODO: Player should be able to move forward in the safe.
@@ -116,11 +117,48 @@ public class Board
         return movables.ToArray();
     }
 
-    private bool InLastVacantSafePosition(Position movable, Player player)
+    /// <summary>
+    /// Calculate new potential position.
+    /// 1. From the base you go to starting position.
+    /// 2. From the basic positions you can NOT go to others' safes or bases.
+    /// 3. Counting stops when we reach last vacant safe position. 
+    /// </summary>
+    /// <param name="player">Player</param>
+    /// <param name="oldPosition"></param>
+    /// <returns></returns>
+    internal Position CalculateNewPosition(Player player, int diceNumber, Position oldPosition)
+    {
+        if (oldPosition is Base) return Positions[player.StartingPosition + 4];
+
+        Position newPosition = oldPosition;
+
+        for (int j = 0; j < diceNumber; j++)
+        {
+            newPosition = NextBoardPosition(player, newPosition);
+            // If the position is player's LAST vacant own safe, we stop there. 
+            if (newPosition is Safe)
+            {
+                if (IsCurrentPositionLastVacantSafe(newPosition, player))
+                    return newPosition;
+            }
+
+        }
+        return newPosition;
+    }
+
+    /// <summary>
+    /// Are there vacant positions more deeper in the safe?
+    /// Note: if piece is in the last vacant safe position, 
+    /// we should not be able to move it anymore. 
+    /// </summary>
+    /// <param name="candidate">Position</param>
+    /// <param name="player">Player</param>
+    /// <returns>Is this the last vacant safe position</returns>
+    private bool IsCurrentPositionLastVacantSafe(Position candidate, Player player)
     {
         int end = player.LastSafePosition;
-        int thisPos = Array.IndexOf(Positions, movable);
-        for (int i = end; i >= Math.Max(thisPos, end - 4); i--)
+        int thisPos = Array.IndexOf(Positions, candidate);
+        for (int i = end; i >= Math.Max(thisPos+1, end - 3); i--)
         {
             if (Positions[i].IsVacant().isVacant) return false;
         }
@@ -176,18 +214,7 @@ public class Board
         return Array.IndexOf(this.Positions, position);
     }
 
-    internal Position CalculateNewPosition(Player player, int diceNumber, Position oldPosition)
-    {
-        if (oldPosition is Base) return Positions[player.StartingPosition + 4];
 
-        for (int j = 0; j < diceNumber; j++)
-        {
-            oldPosition = NextBoardPosition(player, oldPosition);
-            // If the position is player's LAST own safe, we stop there. 
-            if (oldPosition is Safe && GetIndexOf(oldPosition) == player.LastSafePosition) return oldPosition;
-        }
-        return oldPosition;
-    }
 
     /// <summary>
     /// Next position on board that is not a base or opponents safe.
