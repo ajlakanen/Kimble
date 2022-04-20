@@ -95,7 +95,8 @@ public class Board
 
             // From base the piece can go only to the starting position
             if (movable is Base) newPosition = Positions[player.StartingPosition + 4];
-            else if (IsCurrentPositionLastVacantSafe(movable, player))
+            
+            else if (!IsCurrentPositionLastVacantSafe(movable, player))
             {
                 movables.RemoveAt(i);
                 continue;
@@ -157,6 +158,9 @@ public class Board
     private bool IsCurrentPositionLastVacantSafe(Position candidate, Player player)
     {
         int end = player.LastSafePosition;
+        // TODO: This for loop is logically wrong. We should be calculating
+        // distance from the safe when the board is understood as a circle,
+        // not an array with start and end per sé. 
         int thisPos = Array.IndexOf(Positions, candidate);
         for (int i = end; i >= Math.Max(thisPos+1, end - 3); i--)
         {
