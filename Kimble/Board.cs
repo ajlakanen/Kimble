@@ -70,27 +70,61 @@ public class Board
     public Position[] MovablePositions(Player player, int diceNumber)
     {
         List<Position> movables;
-        if (diceNumber == 6) movables = Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(player)).ToList();
-        else 
-            movables = Positions.Select(pos => pos).Where(pos => pos is not Base && pos.PositionOccupiedBy(player)).ToList();
+        if (diceNumber == 6)
+        {
+            movables = Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(player)).ToList();
+        }
+        else
+        {
+            movables = Positions
+                .Select(pos => pos)
+                .Where(pos => pos is not Base && pos.PositionOccupiedBy(player))
+                .ToList();
+        }
+
+        // Remove those positions from the movables list that
+        // player can not actually move because
 
         int i = 0;
         while (i < movables.Count)
         {
-            Position candidate = movables[i];
+            Position movable = movables[i];
+            Position newPosition;
+
+            // First, let's check where the piece is ABOUT to go.
+
             // From base the piece can go only to the starting position
-            if (movables[i] is Base) candidate = Positions[player.StartingPosition + 4];
+            if (movable is Base) newPosition = Positions[player.StartingPosition + 4];
+            else if (InLastVacantSafePosition(movable, player))
+            {
+                movables.RemoveAt(i);
+                continue;
+            }
             else // Other positions have to be calculated. 
             {
-                candidate = CalculateNewPosition(player, diceNumber, candidate);
+                newPosition = CalculateNewPosition(player, diceNumber, movable);
             }
-            // If player's own piece is in the position, player can not move there. 
-            if (candidate.PositionOccupiedBy(player)) movables.RemoveAt(i);
+
+            // Second, we'll check if player's own piece is in the position.
+            // If it is, player can not move there. 
+            if (newPosition.PositionOccupiedBy(player)) movables.RemoveAt(i);
+
             // TODO: Player should be able to move forward in the safe.
             else i++;
         }
 
         return movables.ToArray();
+    }
+
+    private bool InLastVacantSafePosition(Position movable, Player player)
+    {
+        int end = player.LastSafePosition;
+        int thisPos = Array.IndexOf(Positions, movable);
+        for (int i = end; i >= Math.Max(thisPos, end - 4); i--)
+        {
+            if (Positions[i].IsVacant().isVacant) return false;
+        }
+        return true;
     }
 
     /// <summary>
@@ -145,6 +179,7 @@ public class Board
     internal Position CalculateNewPosition(Player player, int diceNumber, Position oldPosition)
     {
         if (oldPosition is Base) return Positions[player.StartingPosition + 4];
+
         for (int j = 0; j < diceNumber; j++)
         {
             oldPosition = NextBoardPosition(player, oldPosition);
