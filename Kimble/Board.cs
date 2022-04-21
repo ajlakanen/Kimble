@@ -67,26 +67,15 @@ public class Board
         }
     }
 
-    public Position[] MovablePositions(Player player, int diceNumber)
+    public (Position aboutToMove, Position newPosition) MovablePositions(Player player, int diceNumber)
     {
-        List<Position> movables;
-        if (diceNumber == 6)
-        {
-            movables = Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(player)).ToList();
-        }
-        else
-        {
-            movables = Positions
-                .Select(pos => pos)
-                .Where(pos => pos is not Base && pos.PositionOccupiedBy(player))
-                .ToList();
-        }
+        List<Position> movables = SelectMovables(player, diceNumber);
+        List<(Position aboutToMove, Position newPosition)> movablesNewPositions = new();
 
         // Remove those positions from the movables list that
         // player can not actually move because
 
-        int i = 0;
-        while (i < movables.Count)
+        for (int i = 0; i < movables.Count; i++)
         {
             Position movable = movables[i];
             Position newPosition;
@@ -95,12 +84,10 @@ public class Board
 
             // From base the piece can go only to the starting position
             if (movable is Base) newPosition = Positions[player.StartingPosition + 4];
+
+            // Is the piece already in last safe position
+            else if (!LaterSafePositionExists(movable, player)) continue;
             
-            else if (!IsCurrentPositionLastVacantSafe(movable, player))
-            {
-                movables.RemoveAt(i);
-                continue;
-            }
             else // Other positions have to be calculated. 
             {
                 newPosition = CalculateNewPosition(player, diceNumber, movable);
@@ -109,13 +96,37 @@ public class Board
             // Second, we'll check if player's own piece is in the position.
             // If it is, player can not move there. 
             // TODO: Refactor this in function so that everything is not glued together. 
-            if (newPosition.PositionOccupiedBy(player)) movables.RemoveAt(i);
+            if (newPosition.PositionOccupiedBy(player)) continue;
 
             // TODO: Player should be able to move forward in the safe.
-            else i++;
+
+            // After all this, we are ready to add a movable and its
+            // new position to the tuples
+            movablesNewPositions.Add((movable, newPosition));
+            return movablesNewPositions;
         }
 
         return movables.ToArray();
+    }
+
+    private List<Position> SelectMovables(Player player, int diceNumber)
+    {
+        List<Position> movables;
+        if (diceNumber == 6)
+        {
+            movables = Positions
+                .Select(pos => pos)
+                .Where(pos => pos.PositionOccupiedBy(player))
+                .ToList();
+        }
+        else
+        {
+            movables = Positions
+                .Select(pos => pos)
+                .Where(pos => pos is not Base && pos.PositionOccupiedBy(player))
+                .ToList();
+        }
+        return movables;
     }
 
     /// <summary>
@@ -139,7 +150,7 @@ public class Board
             // If the position is player's LAST vacant own safe, we stop there. 
             if (newPosition is Safe)
             {
-                if (IsCurrentPositionLastVacantSafe(newPosition, player))
+                if (LaterSafePositionExists(newPosition, player))
                     return newPosition;
             }
 
@@ -155,18 +166,18 @@ public class Board
     /// <param name="candidate">Position</param>
     /// <param name="player">Player</param>
     /// <returns>Is this the last vacant safe position</returns>
-    private bool IsCurrentPositionLastVacantSafe(Position candidate, Player player)
+    private bool LaterSafePositionExists(Position candidate, Player player)
     {
         int end = player.LastSafePosition;
         // TODO: This for loop is logically wrong. We should be calculating
         // distance from the safe when the board is understood as a circle,
         // not an array with start and end per sé. 
         int thisPos = Array.IndexOf(Positions, candidate);
-        for (int i = end; i >= Math.Max(thisPos+1, end - 3); i--)
+        for (int i = end; i >= Math.Max(thisPos + 1, end - 3); i--)
         {
-            if (Positions[i].IsVacant().isVacant) return false;
+            if (Positions[i].IsVacant().isVacant) return true;
         }
-        return true;
+        return false;
     }
 
     /// <summary>
