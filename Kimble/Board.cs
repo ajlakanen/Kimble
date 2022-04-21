@@ -67,7 +67,7 @@ public class Board
         }
     }
 
-    public (Position aboutToMove, Position newPosition) MovablePositions(Player player, int diceNumber)
+    public List<(Position aboutToMove, Position newPosition)> MovablePositions(Player player, int diceNumber)
     {
         List<Position> movables = SelectMovables(player, diceNumber);
         List<(Position aboutToMove, Position newPosition)> movablesNewPositions = new();
@@ -103,10 +103,9 @@ public class Board
             // After all this, we are ready to add a movable and its
             // new position to the tuples
             movablesNewPositions.Add((movable, newPosition));
-            return movablesNewPositions;
         }
 
-        return movables.ToArray();
+        return movablesNewPositions;
     }
 
     private List<Position> SelectMovables(Player player, int diceNumber)
