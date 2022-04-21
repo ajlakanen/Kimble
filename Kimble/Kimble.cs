@@ -10,6 +10,8 @@ internal class Kimble
     public readonly Board Board;
     public Player PlayerInTurn { get; private set; }
     public int DiceNow { get; set; }
+    public List<(Position aboutToMove, Position newPosition)> PiecesThatCanMove { get; private set; }
+
     public bool GameOver = false;
 
     public Kimble()
@@ -40,25 +42,22 @@ internal class Kimble
     /// Throw dice, return the pieces that can move. 
     /// </summary>
     /// <returns>Movable pieces.</returns>
-    public (int diceNumber, Position[]) ThrowDice()
+    public void ThrowDice()
     {
         Random random = new();
         // Throw dice
-        int diceNumber = random.Next(1, 7);
-        DiceNow = diceNumber;
+        DiceNow = random.Next(1, 7);
         // Check which pieces can move. Note: Player can not move piece if target position is occupied by his own piece. 
-        var piecesThatCanMove = Board.MovablePositions(PlayerInTurn, DiceNow);
-        if (piecesThatCanMove.Length == 0)
+        PiecesThatCanMove = Board.MovablePositions(PlayerInTurn, DiceNow);
+        if (PiecesThatCanMove.Count == 0)
         {
             NextPlayersTurn();
-            return (DiceNow, piecesThatCanMove);
         }
-        return (DiceNow, piecesThatCanMove);
     }
 
-    public bool Move(int oldPosition, int diceNumber)
+    public bool Move(int oldPosition)
     {
-        return Move(Board.Positions[oldPosition], diceNumber);
+        return Move(Board.Positions[oldPosition]);
     }
 
     /// <summary>
@@ -67,10 +66,10 @@ internal class Kimble
     /// <param name="oldPosition"></param>
     /// <param name="diceNumber"></param>
     /// <returns>Has the player won</returns>
-    public bool Move(Position oldPosition, int diceNumber)
+    public bool Move(Position oldPosition)
     {
         // Move the selected piece
-        var newPosition = Board.CalculateNewPosition(PlayerInTurn, diceNumber, oldPosition);
+        var newPosition = Board.CalculateNewPosition(PlayerInTurn, DiceNow, oldPosition);
         var newPositionIndex = Board.GetIndexOf(newPosition);
 
         // If there was opponent's piece, move opponent to base
@@ -89,7 +88,7 @@ internal class Kimble
         }
 
         // If dice showed 6, repeat the Turn with the same player. 
-        if (diceNumber == 6)
+        if (DiceNow == 6)
         {
             ThrowDice();
             return false;

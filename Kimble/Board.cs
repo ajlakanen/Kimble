@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kimble;
 
@@ -67,38 +65,42 @@ public class Board
         }
     }
 
+    /// <summary>
+    /// Gives a (Position, Position) tuple which holds those pieces that 
+    /// player can move, and their new position counterparts. Pieces are
+    /// selected with the following rules:
+    ///  - Piece can move from the base to the starting position.
+    ///  - If the piece is already in the last vacant Safe position, it cannot be moved. 
+    ///  - If there's players own piece in the new position, it cannot be moved. 
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="diceNumber"></param>
+    /// <returns></returns>
     public List<(Position aboutToMove, Position newPosition)> MovablePositions(Player player, int diceNumber)
     {
         List<Position> movables = SelectMovables(player, diceNumber);
         List<(Position aboutToMove, Position newPosition)> movablesNewPositions = new();
 
-        // Remove those positions from the movables list that
-        // player can not actually move because
-
+        // Ignore those old positions where the player can not actually move to the new position. 
         for (int i = 0; i < movables.Count; i++)
         {
             Position movable = movables[i];
             Position newPosition;
 
-            // First, let's check where the piece is ABOUT to go.
-
-            // From base the piece can go only to the starting position
+            // Phase 1. Let's check where the piece is ABOUT to go.
+            // a. From base the piece can go only to the starting position
             if (movable is Base) newPosition = Positions[player.StartingPosition + 4];
 
-            // Is the piece already in last safe position
+            // b. Is the piece already in last safe position, it cannot move and we don't add it to the list. 
             else if (!LaterSafePositionExists(movable, player)) continue;
             
-            else // Other positions have to be calculated. 
-            {
-                newPosition = CalculateNewPosition(player, diceNumber, movable);
-            }
+            // c. Other positions have to be calculated.             
+            else newPosition = CalculateNewPosition(player, diceNumber, movable);
 
-            // Second, we'll check if player's own piece is in the position.
-            // If it is, player can not move there. 
-            // TODO: Refactor this in function so that everything is not glued together. 
+            // Phase 2. 
+            // We'll check if player's own piece is in the position.
+            // If it is, player can not move there and we don't add it to the list. 
             if (newPosition.PositionOccupiedBy(player)) continue;
-
-            // TODO: Player should be able to move forward in the safe.
 
             // After all this, we are ready to add a movable and its
             // new position to the tuples
@@ -191,10 +193,7 @@ public class Board
         int basePos = firstBasePos;
         do
         {
-            if (!(this[basePos].IsVacant().isVacant))
-            {
-                basePos++;
-            }
+            if (!(this[basePos].IsVacant().isVacant)) basePos++;
             else
             {
                 MovePieceToNewPosition(oldPosition, this[basePos]);
@@ -227,8 +226,6 @@ public class Board
     {
         return Array.IndexOf(this.Positions, position);
     }
-
-
 
     /// <summary>
     /// Next position on board that is not a base or opponents safe.

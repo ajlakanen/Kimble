@@ -11,7 +11,6 @@ public class KimbleGame : Game
 {
     Kimble kimble;
     UI ui;
-    readonly Dictionary<Player, string> playerPositions = new();
 
     public override void Begin()
     {
@@ -26,10 +25,10 @@ public class KimbleGame : Game
 
     private void NewTurn(Kimble kimble)
     {
-        string movablePositions = Throw(out int diceNumber);
+        string movablesStr = Throw();
         ui.UpdateLabels();
-        ui.UpdateMovables(movablePositions);
-        InputWindow iw = SelectAndMove(diceNumber, movablePositions);
+        ui.UpdateMovables(movablesStr);
+        InputWindow iw = SelectAndMove(movablesStr);
         iw.Closed += delegate
         {
             ui.UpdateLabels();
@@ -37,7 +36,7 @@ public class KimbleGame : Game
         };
     }
 
-    private InputWindow SelectAndMove(int diceNumber, string s)
+    private InputWindow SelectAndMove(string s)
     {
         InputWindow iw = new(s);
         Add(iw);
@@ -46,23 +45,22 @@ public class KimbleGame : Game
             int selected = int.Parse(iw.InputBox.Text);
             MessageDisplay.Add(selected + "");
             //kimble.Board.MovePieceToNewPosition(selected, selected + diceNumber);
-            kimble.Move(selected, diceNumber);
+            kimble.Move(selected);
         };
         return iw;
     }
 
-    private string Throw(out int diceNumber)
+    private string Throw()
     {
-        Position[] movablePositions;
         do
         {
-            (diceNumber, movablePositions) = kimble.ThrowDice();
-            MessageDisplay.Add($"{kimble.PlayerInTurn.Color} heitti: {diceNumber}");
-            if (movablePositions.Length == 0) MessageDisplay.Add($"Vuoro vaihtuu. Vuorossa nyt: {kimble.PlayerInTurn.Color}");
-        } while (movablePositions.Length == 0);
+            kimble.ThrowDice();
+            MessageDisplay.Add($"{kimble.PlayerInTurn.Color} heitti: {kimble.DiceNow}");
+            if (kimble.PiecesThatCanMove.Count == 0) MessageDisplay.Add($"Vuoro vaihtuu. Vuorossa nyt: {kimble.PlayerInTurn.Color}");
+        } while (kimble.PiecesThatCanMove.Count == 0);
         // return kimble.PrintPositions(kimble.PlayerInTurn);
         string s = "";
-        movablePositions.ForEach(p => s += kimble.Board.GetIndexOf(p) + ", ");
+        kimble.PiecesThatCanMove.ForEach(p => s += kimble.Board.GetIndexOf(p.aboutToMove) + ", ");
         return s;
     }
 }
