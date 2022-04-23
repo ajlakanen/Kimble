@@ -92,7 +92,7 @@ public class Board
             if (movable is Base) newPosition = Positions[player.StartingPosition + 4];
 
             // b. Is the piece already in last safe position, it cannot move and we don't add it to the list. 
-            else if (!LaterSafePositionExists(movable, player)) continue;
+            // else if (!LaterSafePositionExists(movable, player)) continue;
             
             // c. Other positions have to be calculated.             
             else newPosition = CalculateNewPosition(player, diceNumber, movable);

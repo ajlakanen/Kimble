@@ -42,17 +42,14 @@ internal class Kimble
     /// Throw dice, return the pieces that can move. 
     /// </summary>
     /// <returns>Movable pieces.</returns>
-    public void ThrowDice()
+    public List<(Position, Position)> ThrowDice()
     {
         Random random = new();
         // Throw dice
         DiceNow = random.Next(1, 7);
         // Check which pieces can move. Note: Player can not move piece if target position is occupied by his own piece. 
         PiecesThatCanMove = Board.MovablePositions(PlayerInTurn, DiceNow);
-        if (PiecesThatCanMove.Count == 0)
-        {
-            NextPlayersTurn();
-        }
+        return PiecesThatCanMove;
     }
 
     public bool Move(int oldPosition)
@@ -86,6 +83,7 @@ internal class Kimble
             GameOver = true;
             return true;
         }
+        return false;
 
         // If dice showed 6, repeat the Turn with the same player. 
         if (DiceNow == 6)
@@ -94,11 +92,11 @@ internal class Kimble
             return false;
         }
 
-        NextPlayersTurn();
+        ChangeTurn();
         return false;
     }
 
-    private void NextPlayersTurn()
+    public void ChangeTurn()
     {
         // Change player in turn to the next player that is still in the game. 
         PlayerInTurn = Players[(Array.IndexOf(Players, PlayerInTurn) + 1) % 4];

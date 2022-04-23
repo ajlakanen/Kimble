@@ -17,23 +17,45 @@ public class KimbleGame : Game
         kimble = new();
         ui = new(this, kimble);
         ui.CreateLabels(-200, -200);
-        NewTurn(kimble);
-
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
+        Keyboard.Listen(Key.Space, ButtonState.Pressed, ThrowDice, null);
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
     }
 
-    private void NewTurn(Kimble kimble)
+    private void ThrowDice()
     {
-        string movablesStr = Throw();
+        string movablesStr = "";
+        var piecesThatCanMove = kimble.ThrowDice();
+        MessageDisplay.Add($"{kimble.PlayerInTurn.Color} heitti: {kimble.DiceNow}");
+        kimble.PiecesThatCanMove.ForEach(p => movablesStr += kimble.Board.GetIndexOf(p.aboutToMove) + ", ");
         ui.UpdateLabels();
         ui.UpdateMovables(movablesStr);
-        InputWindow iw = SelectAndMove(movablesStr);
-        iw.Closed += delegate
+        if (kimble.PiecesThatCanMove.Count != 0)
+        {
+            InputWindow iw = SelectAndMove(movablesStr);
+            iw.Closed += delegate
+            {
+                ui.UpdateLabels();
+                MessageDisplay.Add("Heitä uudestaan");
+            };
+        }
+        if (kimble.DiceNow == 6)
+        {
+            return;
+        }
+        else NewTurn();
+    }
+
+    private void NewTurn()
+    {
+        kimble.ChangeTurn();
+        MessageDisplay.Add($"Vuoro vaihtuu.");
+        Timer.SingleShot(1.0, () =>
         {
             ui.UpdateLabels();
-            NewTurn(kimble);
-        };
+            MessageDisplay.Add($"Vuorossa nyt: {kimble.PlayerInTurn.Color}");
+        });
+        // return kimble.PrintPositions(kimble.PlayerInTurn);
     }
 
     private InputWindow SelectAndMove(string s)
@@ -50,18 +72,5 @@ public class KimbleGame : Game
         return iw;
     }
 
-    private string Throw()
-    {
-        do
-        {
-            kimble.ThrowDice();
-            MessageDisplay.Add($"{kimble.PlayerInTurn.Color} heitti: {kimble.DiceNow}");
-            if (kimble.PiecesThatCanMove.Count == 0) MessageDisplay.Add($"Vuoro vaihtuu. Vuorossa nyt: {kimble.PlayerInTurn.Color}");
-        } while (kimble.PiecesThatCanMove.Count == 0);
-        // return kimble.PrintPositions(kimble.PlayerInTurn);
-        string s = "";
-        kimble.PiecesThatCanMove.ForEach(p => s += kimble.Board.GetIndexOf(p.aboutToMove) + ", ");
-        return s;
-    }
 }
 
