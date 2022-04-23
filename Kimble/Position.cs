@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kimble;
 
+/// <summary>
+/// Position
+/// </summary>
 public class Position
 {
     protected bool isVacant = true;
@@ -15,6 +14,9 @@ public class Position
     /// </summary>
 
     private Player playerInPosition;
+    /// <summary>
+    /// Player that is currently in the position.
+    /// </summary>
     protected Player PlayerInPosition
     {
         get
@@ -45,6 +47,11 @@ public class Position
         return isVacant ? (isVacant, null) : (isVacant, PlayerInPosition);
     }
 
+    /// <summary>
+    /// Is position occupied by a player.
+    /// </summary>
+    /// <param name="player">Player</param>
+    /// <returns>Is occupied</returns>
     public bool PositionOccupiedBy(Player player)
     {
         if (PlayerInPosition == null) return false;
@@ -52,6 +59,11 @@ public class Position
         else return false;
     }
 
+    /// <summary>
+    /// Move player from old position to new position.
+    /// </summary>
+    /// <param name="newPosition"></param>
+    /// <exception cref="Exception"></exception>
     public void MovePlayerTo(Position newPosition)
     {
         if (newPosition.PlayerInPosition != null) throw new Exception("Player already in new position");

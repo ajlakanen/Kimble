@@ -1,9 +1,4 @@
 using Jypeli;
-using Jypeli.Assets;
-using Jypeli.Controls;
-using Jypeli.Widgets;
-using System;
-using System.Collections.Generic;
 
 namespace Kimble;
 
