@@ -31,7 +31,21 @@ internal class UI
         uiInitialY = y;
         Vector bottom = CreatePlayerLabels(x, y);
         CreateDiceLabel(bottom.X, bottom.Y);
+        CreateYouCanMoveLabel(300, dice.Y);
         CreatePointer(x, y);
+    }
+
+    private void CreateYouCanMoveLabel(double x, double y)
+    {
+        youCanMove = new Label
+        {
+            Left = dice.Right + 150,
+            Y = y,
+            Color = Jypeli.Color.Black,
+            TextColor = Jypeli.Color.White,
+            Text = ""
+        };
+        game.Add(youCanMove);
     }
 
     private void CreatePointer(double x, double y)
@@ -54,17 +68,6 @@ internal class UI
             Text = "Dice shows:  "
         };
         game.Add(dice);
-
-        youCanMove = new Label
-        {
-            Left = dice.Right + 150,
-            Top = y,
-            Color = Jypeli.Color.Black,
-            TextColor = Jypeli.Color.White,
-            Text = "You can move: "
-        };
-
-        game.Add(youCanMove);
     }
 
     Vector CreatePlayerLabels(double x, double y)
@@ -84,7 +87,7 @@ internal class UI
             Label label = new()
             {
                 TextColor = colors[player.Color],
-                Text = $"{player.Color.Stringify()}: {kimble.PrintPositions(player)}",
+                Text = $"{player.Color.Stringify()} ({player.LastSafePosition}): {kimble.PrintPositions(player)}",
                 Color = Jypeli.Color.Black
             };
             label.Left = x;
@@ -103,14 +106,19 @@ internal class UI
         {
             label.Value.Text = $"{label.Key.Color.Stringify()} ({label.Key.LastSafePosition}): {kimble.PrintPositions(label.Key)}";
         }
-        dice.Text = $"Dice shows: {kimble.DiceNow}";
 
         pointer.Y = uiInitialY - (Array.IndexOf(kimble.Players, kimble.PlayerInTurn) * dice.Height * 1.5) - 10;
         pointer.X = uiInitialX - pointer.Height;
     }
 
+    public void UpdateDiceLabel(string s)
+    {
+        dice.Text = s;
+    }
+
     internal void UpdateMovables(string s)
     {
-        youCanMove.Text = $"You can move: {s}";
+        if (s.Length == 0) youCanMove.Text = "";
+        else youCanMove.Text = s;
     }
 }

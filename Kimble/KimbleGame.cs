@@ -28,22 +28,30 @@ public class KimbleGame : Game
         var piecesThatCanMove = kimble.ThrowDice();
         MessageDisplay.Add($"{kimble.PlayerInTurn.Color} heitti: {kimble.DiceNow}");
         kimble.PiecesThatCanMove.ForEach(p => movablesStr += kimble.Board.GetIndexOf(p.aboutToMove) + ", ");
+        ui.UpdateDiceLabel($"Dice shows: {kimble.DiceNow}");
         ui.UpdateLabels();
-        ui.UpdateMovables(movablesStr);
         if (kimble.PiecesThatCanMove.Count != 0)
         {
+            ui.UpdateMovables($"You can move: {movablesStr}");
             InputWindow iw = SelectAndMove(movablesStr);
             iw.Closed += delegate
             {
                 ui.UpdateLabels();
-                MessageDisplay.Add("Heitä uudestaan");
+                ui.UpdateMovables("");
+                if (kimble.DiceNow == 6)
+                {
+                    MessageDisplay.Add("Heitä uudestaan");
+                    ThrowDice();
+                    return;
+                }
+                else NewTurn();
             };
         }
-        if (kimble.DiceNow == 6)
+        else
         {
-            return;
-        }
-        else NewTurn();
+            ui.UpdateMovables("You can not move.");
+            NewTurn();
+        }        
     }
 
     private void NewTurn()
@@ -53,6 +61,8 @@ public class KimbleGame : Game
         Timer.SingleShot(1.0, () =>
         {
             ui.UpdateLabels();
+            ui.UpdateMovables("");
+            ui.UpdateDiceLabel("");
             MessageDisplay.Add($"Vuorossa nyt: {kimble.PlayerInTurn.Color}");
         });
         // return kimble.PrintPositions(kimble.PlayerInTurn);
@@ -65,7 +75,7 @@ public class KimbleGame : Game
         iw.TextEntered += delegate (InputWindow iw)
         {
             int selected = int.Parse(iw.InputBox.Text);
-            MessageDisplay.Add(selected + "");
+            MessageDisplay.Add($"Moved piece from position {selected}");
             //kimble.Board.MovePieceToNewPosition(selected, selected + diceNumber);
             kimble.Move(selected);
         };
