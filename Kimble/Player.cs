@@ -44,10 +44,29 @@ public static class ColorExtensions
 /// </summary>
 public class Player
 {
+    /// <summary>
+    /// Color
+    /// </summary>
     public Color Color { get; init; }
+    
+    /// <summary>
+    /// Starting position (board array index).
+    /// </summary>
     public int StartingPosition { get; init; }
-    public int LastSafePosition { get; init; }
 
+    /// <summary>
+    /// Last safe position (board array index).
+    /// </summary>
+    public int LastSafePosition { get; init; }
+    
+    /// <summary>
+    /// Is player still in the game.
+    /// </summary>
+    public bool InGame { get; protected set; }
+
+    /// <summary>
+    /// Player
+    /// </summary>
     public Player()
     {
     }

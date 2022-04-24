@@ -12,6 +12,7 @@ public class KimbleGame : Game
         kimble = new();
         ui = new(this, kimble);
         ui.CreateLabels(-200, -200);
+        ui.CreateBoardLayout();
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
         Keyboard.Listen(Key.Space, ButtonState.Pressed, ThrowDice, null);
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
@@ -36,7 +37,8 @@ public class KimbleGame : Game
                 if (kimble.DiceNow == 6)
                 {
                     MessageDisplay.Add("Heitä uudestaan");
-                    ThrowDice();
+                    ui.UpdateDiceLabel("");
+                    //ThrowDice();
                     return;
                 }
                 else NewTurn();
@@ -51,13 +53,13 @@ public class KimbleGame : Game
 
     private void NewTurn()
     {
-        kimble.ChangeTurn();
+        kimble.NextPlayer();
+        ui.UpdateMovables("");
+        ui.UpdateDiceLabel("");
         MessageDisplay.Add($"Vuoro vaihtuu.");
         Timer.SingleShot(1.0, () =>
         {
             ui.UpdateLabels();
-            ui.UpdateMovables("");
-            ui.UpdateDiceLabel("");
             MessageDisplay.Add($"Vuorossa nyt: {kimble.PlayerInTurn.Color}");
         });
         // return kimble.PrintPositions(kimble.PlayerInTurn);

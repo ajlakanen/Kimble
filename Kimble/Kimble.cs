@@ -60,13 +60,14 @@ internal class Kimble
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="oldPosition"></param>
+    /// <param name="aboutToMove"></param>
     /// <param name="diceNumber"></param>
     /// <returns>Has the player won</returns>
-    public bool Move(Position oldPosition)
+    public bool Move(Position aboutToMove)
     {
         // Move the selected piece
-        var newPosition = Board.CalculateNewPosition(PlayerInTurn, DiceNow, oldPosition);
+        var newPosition = PiecesThatCanMove.Select(x => x).Where(x => x.aboutToMove == aboutToMove).First().newPosition;
+        // var newPosition = Board.CalculateNewPosition(PlayerInTurn, DiceNow, aboutToMove);
         var newPositionIndex = Board.GetIndexOf(newPosition);
 
         // If there was opponent's piece, move opponent to base
@@ -75,7 +76,7 @@ internal class Kimble
             Board.MovePieceToBase(newPosition);
         }
 
-        oldPosition.MovePlayerTo(newPosition); // TODO: Can this fail??
+        aboutToMove.MovePlayerTo(newPosition); // TODO: Can this fail??
 
         // If all pieces are in safe, player in turn wins
         if (Board.Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(PlayerInTurn)).All(pos => pos is Safe))
@@ -92,13 +93,15 @@ internal class Kimble
             return false;
         }
 
-        ChangeTurn();
+        NextPlayer();
         return false;
     }
 
-    public void ChangeTurn()
+    /// <summary>
+    /// Change player in turn to the next player that is still in the game. 
+    /// </summary>
+    public void NextPlayer()
     {
-        // Change player in turn to the next player that is still in the game. 
         PlayerInTurn = Players[(Array.IndexOf(Players, PlayerInTurn) + 1) % 4];
     }
 
