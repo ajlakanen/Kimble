@@ -76,6 +76,8 @@ public class Player
     /// </summary>
     public int StartingPosition { get; init; }
 
+    public double StartingAngle { get; init; }
+
     /// <summary>
     /// Last safe position (board array index).
     /// </summary>

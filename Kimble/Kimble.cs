@@ -31,6 +31,7 @@ internal class Kimble
             {
                 Color = Rules.colorsAndStartingPositions[i].color,
                 StartingPosition = startPos,
+                StartingAngle = Math.PI / 2 - (i * Math.PI / 2),
                 LastSafePosition = startPos - 1 < 0 ? startPos - 1 + Board.TotalNumberOfPositions : startPos - 1
             };
             Players[i] = player;

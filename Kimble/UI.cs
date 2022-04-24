@@ -10,8 +10,16 @@ namespace Kimble;
 
 internal class UI
 {
-    Kimble kimble;
-    Game game;
+    const int TotalPositions = Board.TotalNumberOfPositions;
+    const int TotalBasicPositions = Board.TotalNumberOfPositions - 4 * (4 + 4);
+    const double BasicAngleAdd = (Math.PI * 2) / (double)TotalBasicPositions;
+    const double BaseDistance = 360.0;
+    const double BasicDistance = 300.0;
+    const double SafeDistanceStart = 260.0;
+    const double StartAngle = Math.PI / 2;
+
+    readonly Kimble kimble;
+    readonly Game game;
     Dictionary<Player, Label> labels;
     Label dice;
     Label youCanMove;
@@ -29,7 +37,8 @@ internal class UI
     {
         switch (boardPos)
         {
-            case Base:
+            case Base @base:
+                Vector position = BaseToUIPosition(@base);
                 return Vector.Zero;
             case Safe:
                 return Vector.Zero;
@@ -39,43 +48,57 @@ internal class UI
         return Vector.Zero;
     }
 
+
+    private Vector SafeToUIPosition(Safe safe)
+    {
+        throw new NotImplementedException();
+    }
+
+    private Vector BaseToUIPosition(Base @base)
+    {
+        Player player = @base.OwnedBy;
+        int baseStartsFrom = player.StartingPosition;
+        double baseStartAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
+        var bases = kimble.Board.Positions.Select(x => x).Where(x => x is Base b && b.OwnedBy == @base.OwnedBy).ToList();
+        int index = bases.IndexOf(@base);
+        Vector position = Vector.FromLengthAndAngle(BaseDistance, Angle.FromRadians(baseStartAngle - index * BasicAngleAdd));
+        return position;
+    }
+
     internal void CreateBoardLayout()
     {
-        int total = Board.TotalNumberOfPositions;
-        const int TotalBasicPositions = Board.TotalNumberOfPositions - 4 * (4 + 4);
         // Angle from the top going clockwise.
-        const double StartAngle = Math.PI / 2;
-        const double BasicAngleAdd = (Math.PI * 2) / (double)TotalBasicPositions;
-        const double BaseDistance = 360.0;
-        const double BasicDistance = 300.0;
-        const double SafeDistanceStart = 260.0;
         Position now;
 
-        double angle = StartAngle;
-        for (int i = 0; i < total; i++)
+        // double angle = StartAngle;
+        for (int i = 0; i < TotalPositions; i++)
         {
             now = kimble.Board.Positions[i];
             if (now is Base || now is Safe) continue;
-            Vector position = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(angle));
+            // Vector position = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(angle));
+            var basicPositions = kimble.Board.Positions.Select(x => x).Where(x => x is not Base && x is not Safe).ToList();
+            int index = basicPositions.IndexOf(now);
+            Vector position = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(StartAngle - index * BasicAngleAdd));
             GameObject g = new GameObject(20, 20, Shape.Circle);
             Label l = new Label(i + "");
             game.Add(l);
             l.Position = position;
             g.Position = position;
             game.Add(g);
-            angle -= BasicAngleAdd;
+            // angle -= BasicAngleAdd;
         }
 
         // Bases
         for (int i = 0; i < kimble.Players.Length; i++)
         {
             int baseStartsFrom = kimble.Players[i].StartingPosition;
-            double baseStartAngle = StartAngle + ((baseStartsFrom * 1.0 / total) * 2 * Math.PI) + 3 * BasicAngleAdd;
+            //double baseStartAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
 
             for (int j = 0; j < 4; j++)
             {
-                now = kimble.Board.Positions[baseStartsFrom + j];
-                Vector position = Vector.FromLengthAndAngle(BaseDistance, Angle.FromRadians(baseStartAngle - (j * BasicAngleAdd)));
+                Base baseNow = kimble.Board.Positions[baseStartsFrom + j] as Base;
+                //Vector position = Vector.FromLengthAndAngle(BaseDistance, Angle.FromRadians(baseStartAngle - (j * BasicAngleAdd)));
+                Vector position = BaseToUIPosition(baseNow);
                 GameObject g = new(20, 20, Shape.Circle)
                 {
                     Position = position
@@ -97,8 +120,8 @@ internal class UI
         for (int i = 0; i < Rules.colorsAndStartingPositions.Length; i++)
         {
             int baseStartsFrom = kimble.Players[i].StartingPosition;
-            int safeStartsFrom = (baseStartsFrom - 4) < 0 ? baseStartsFrom - 4 + Board.TotalNumberOfPositions : (baseStartsFrom - 4) % total;
-            double safeStartAngle = StartAngle + ((baseStartsFrom * 1.0 / total) * 2 * Math.PI);
+            int safeStartsFrom = (baseStartsFrom - 4) < 0 ? baseStartsFrom - 4 + Board.TotalNumberOfPositions : (baseStartsFrom - 4) % TotalPositions;
+            double safeStartAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI);
             for (int j = 0; j < 4; j++)
             {
                 Vector position = Vector.FromLengthAndAngle(SafeDistanceStart - j * 40, Angle.FromRadians(safeStartAngle));
