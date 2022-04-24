@@ -20,6 +20,28 @@ public enum Color
 /// </summary>
 public static class ColorExtensions
 {
+    public static Jypeli.Color ToJypeliColor(this Color color)
+    {
+        switch (color)
+        {   
+            case Color.Red:
+                return Jypeli.Color.Red;
+                break;
+            case Color.Green:
+                return Jypeli.Color.Green;
+                break;
+            case Color.Yellow:
+                return Jypeli.Color.Yellow;
+                break;
+            case Color.Blue:
+                return Jypeli.Color.Blue;
+                break;
+            default:
+                break;
+        }
+        return Jypeli.Color.LightBlue;
+    }
+
     public static string Stringify(this Color color)
     {
         switch (color)

@@ -9,9 +9,11 @@ public class KimbleGame : Game
 
     public override void Begin()
     {
+        SetWindowSize(1920, 1080);
+        CenterWindow();
         kimble = new();
         ui = new(this, kimble);
-        ui.CreateLabels(-200, -200);
+        ui.CreateLabels(-800, 0);
         ui.CreateBoardLayout();
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
         Keyboard.Listen(Key.Space, ButtonState.Pressed, ThrowDice, null);
