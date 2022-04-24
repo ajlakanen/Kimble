@@ -33,28 +33,18 @@ internal class UI
         this.kimble = kimble;
     }
 
-    public Vector BoardToUIPosition(Position boardPos)
-    {
-        switch (boardPos)
-        {
-            case Base @base:
-                Vector position = BaseToUIPosition(@base);
-                return Vector.Zero;
-            case Safe:
-                return Vector.Zero;
-            default:
-                break;
-        }
-        return Vector.Zero;
-    }
-
-
-    private Vector SafeToUIPosition(Safe safe)
+    
+    private Vector BoardToUIPosition(Safe safe)
     {
         throw new NotImplementedException();
     }
 
-    private Vector BaseToUIPosition(Base @base)
+    private Vector BoardToUIPosition(Position position)
+    {
+        throw new NotImplementedException();
+    }
+
+    private Vector BoardToUIPosition(Base @base)
     {
         Player player = @base.OwnedBy;
         int baseStartsFrom = player.StartingPosition;
@@ -98,7 +88,7 @@ internal class UI
             {
                 Base baseNow = kimble.Board.Positions[baseStartsFrom + j] as Base;
                 //Vector position = Vector.FromLengthAndAngle(BaseDistance, Angle.FromRadians(baseStartAngle - (j * BasicAngleAdd)));
-                Vector position = BaseToUIPosition(baseNow);
+                Vector position = BoardToUIPosition(baseNow);
                 GameObject g = new(20, 20, Shape.Circle)
                 {
                     Position = position
