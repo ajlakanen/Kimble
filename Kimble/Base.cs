@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Kimble;
 
-public class Base : Position
+public class Base : Position, SafeOrBase
 {
     public Player OwnedBy { get; init; }
 

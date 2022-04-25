@@ -34,22 +34,43 @@ internal class UI
     }
 
 
+    private Vector BoardToUIPosition2(SafeOrBase position)
+    {
+        Player player = position.OwnedBy;
+        int baseStartsFrom = player.StartingPosition;
+        double startAngle;
+        if (position is Safe)
+        {
+            startAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI);
+        }
+        else
+        {
+            startAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
+        }
+        Type posType = position.GetType();
+        var safesOrBases = kimble.Board.Positions.Select<Position, SafeOrBase>(x => x as SafeOrBase).Where(x => x is SafeOrBase s && s.OwnedBy == player).ToList();
+        int index = safesOrBases.IndexOf(position);
+
+        throw new NotImplementedException();
+    }
+
     private Vector BoardToUIPosition(Safe safe)
     {
         Player player = safe.OwnedBy;
         int baseStartsFrom = player.StartingPosition;
-        // int safeStartsFrom = (baseStartsFrom - 4) < 0 ? baseStartsFrom - 4 + Board.TotalNumberOfPositions : (baseStartsFrom - 4) % TotalPositions;
-        int safeStartsFrom = player.LastSafePosition - 4;
         double safeStartAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI);
         var safes = kimble.Board.Positions.Select(x => x).Where(x => x is Safe s && s.OwnedBy == safe.OwnedBy).ToList();
         int index = safes.IndexOf(safe);
-        Vector position = Vector.FromLengthAndAngle(SafeDistanceStart - index * 40, Angle.FromRadians(safeStartAngle));
-        return position;
+        Vector posUI = Vector.FromLengthAndAngle(SafeDistanceStart - index * 40, Angle.FromRadians(safeStartAngle));
+        return posUI;
     }
 
     private Vector BoardToUIPosition(Position position)
     {
-        throw new NotImplementedException();
+        var basicPositions = kimble.Board.Positions.Select(pos => pos).Where(pos => pos is not Base && pos is not Safe).ToList();
+        int index = basicPositions.IndexOf(position);
+        Vector posUI = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(StartAngle - index * BasicAngleAdd));
+        return posUI;
     }
 
     private Vector BoardToUIPosition(Base @base)
@@ -59,8 +80,8 @@ internal class UI
         double baseStartAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
         var bases = kimble.Board.Positions.Select(x => x).Where(x => x is Base b && b.OwnedBy == @base.OwnedBy).ToList();
         int index = bases.IndexOf(@base);
-        Vector position = Vector.FromLengthAndAngle(BaseDistance, Angle.FromRadians(baseStartAngle - index * BasicAngleAdd));
-        return position;
+        Vector posUI = Vector.FromLengthAndAngle(BaseDistance, Angle.FromRadians(baseStartAngle - index * BasicAngleAdd));
+        return posUI;
     }
 
     internal void CreateBoardLayout()
@@ -73,9 +94,7 @@ internal class UI
         {
             now = kimble.Board.Positions[i];
             if (now is Base || now is Safe) continue;
-            var basicPositions = kimble.Board.Positions.Select(x => x).Where(x => x is not Base && x is not Safe).ToList();
-            int index = basicPositions.IndexOf(now);
-            Vector position = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(StartAngle - index * BasicAngleAdd));
+            Vector position = BoardToUIPosition(now);
             DrawPosition(-1, i, 0, position);
         }
 
