@@ -105,22 +105,22 @@ internal class UI
 
     }
 
-    private void DrawPosition(int i, int baseStartsFrom, int j, Vector position)
+    private void DrawPosition(int playerIndex, int boardIndex, int add, Vector position)
     {
         GameObject g = new(20, 20, Shape.Circle)
         {
             Position = position
         };
         GameObject background = new(30, 30, Shape.Circle);
-        if (i >= 0)
+        if (playerIndex >= 0)
         {
-            background.Color = kimble.Players[i].Color.ToJypeliColor();
+            background.Color = kimble.Players[playerIndex].Color.ToJypeliColor();
         }
         else
         {
             background.Color = Jypeli.Color.White;
         }
-        Label l = new(baseStartsFrom + j + "");
+        Label l = new(boardIndex + add + "");
         l.Position = position;
         background.Position = position;
         game.Add(l);
