@@ -33,10 +33,18 @@ internal class UI
         this.kimble = kimble;
     }
 
-    
+
     private Vector BoardToUIPosition(Safe safe)
     {
-        throw new NotImplementedException();
+        Player player = safe.OwnedBy;
+        int baseStartsFrom = player.StartingPosition;
+        // int safeStartsFrom = (baseStartsFrom - 4) < 0 ? baseStartsFrom - 4 + Board.TotalNumberOfPositions : (baseStartsFrom - 4) % TotalPositions;
+        int safeStartsFrom = player.LastSafePosition - 4;
+        double safeStartAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI);
+        var safes = kimble.Board.Positions.Select(x => x).Where(x => x is Safe s && s.OwnedBy == safe.OwnedBy).ToList();
+        int index = safes.IndexOf(safe);
+        Vector position = Vector.FromLengthAndAngle(SafeDistanceStart - index * 40, Angle.FromRadians(safeStartAngle));
+        return position;
     }
 
     private Vector BoardToUIPosition(Position position)
@@ -60,76 +68,64 @@ internal class UI
         // Angle from the top going clockwise.
         Position now;
 
-        // double angle = StartAngle;
+        // Basic positions
         for (int i = 0; i < TotalPositions; i++)
         {
             now = kimble.Board.Positions[i];
             if (now is Base || now is Safe) continue;
-            // Vector position = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(angle));
             var basicPositions = kimble.Board.Positions.Select(x => x).Where(x => x is not Base && x is not Safe).ToList();
             int index = basicPositions.IndexOf(now);
             Vector position = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(StartAngle - index * BasicAngleAdd));
-            GameObject g = new GameObject(20, 20, Shape.Circle);
-            Label l = new Label(i + "");
-            game.Add(l);
-            l.Position = position;
-            g.Position = position;
-            game.Add(g);
-            // angle -= BasicAngleAdd;
+            DrawPosition(-1, i, 0, position);
         }
 
         // Bases
         for (int i = 0; i < kimble.Players.Length; i++)
         {
             int baseStartsFrom = kimble.Players[i].StartingPosition;
-            //double baseStartAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
 
             for (int j = 0; j < 4; j++)
             {
                 Base baseNow = kimble.Board.Positions[baseStartsFrom + j] as Base;
-                //Vector position = Vector.FromLengthAndAngle(BaseDistance, Angle.FromRadians(baseStartAngle - (j * BasicAngleAdd)));
                 Vector position = BoardToUIPosition(baseNow);
-                GameObject g = new(20, 20, Shape.Circle)
-                {
-                    Position = position
-                };
-                GameObject background = new(30, 30, Shape.Circle)
-                {
-                    Color = kimble.Players[i].Color.ToJypeliColor(),
-                    Position = position
-                };
-                Label l = new(baseStartsFrom + j + "");
-                l.Position = position;
-                game.Add(l);
-                game.Add(g);
-                game.Add(background, -1);
+                DrawPosition(i, baseStartsFrom, j, position);
             }
         }
 
         // Safes
         for (int i = 0; i < Rules.colorsAndStartingPositions.Length; i++)
         {
-            int baseStartsFrom = kimble.Players[i].StartingPosition;
-            int safeStartsFrom = (baseStartsFrom - 4) < 0 ? baseStartsFrom - 4 + Board.TotalNumberOfPositions : (baseStartsFrom - 4) % TotalPositions;
-            double safeStartAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI);
+            int safeStartsFrom = kimble.Players[i].LastSafePosition - 3;
             for (int j = 0; j < 4; j++)
             {
-                Vector position = Vector.FromLengthAndAngle(SafeDistanceStart - j * 40, Angle.FromRadians(safeStartAngle));
-                GameObject g = new(20, 20, Shape.Circle)
-                {
-                    Position = position
-                };
-                Label l = new(safeStartsFrom + j + "");
-                l.Position = position;
-                GameObject background = new(30, 30, Shape.Circle);
-                background.Color = kimble.Players[i].Color.ToJypeliColor();
-                background.Position = position;
-                game.Add(l);
-                game.Add(g);
-                game.Add(background, -1);
+                Vector position = BoardToUIPosition(kimble.Board.Positions[safeStartsFrom + j] as Safe);
+                DrawPosition(i, safeStartsFrom, j, position);
             }
         }
 
+    }
+
+    private void DrawPosition(int i, int baseStartsFrom, int j, Vector position)
+    {
+        GameObject g = new(20, 20, Shape.Circle)
+        {
+            Position = position
+        };
+        GameObject background = new(30, 30, Shape.Circle);
+        if (i >= 0)
+        {
+            background.Color = kimble.Players[i].Color.ToJypeliColor();
+        }
+        else
+        {
+            background.Color = Jypeli.Color.White;
+        }
+        Label l = new(baseStartsFrom + j + "");
+        l.Position = position;
+        background.Position = position;
+        game.Add(l);
+        game.Add(g);
+        game.Add(background, -1);
     }
 
     public void CreateLabels(double x, double y)
