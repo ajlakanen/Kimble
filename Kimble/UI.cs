@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Kimble;
 using Jypeli;
 
 namespace Kimble;
@@ -24,6 +21,7 @@ internal class UI
     Label dice;
     Label youCanMove;
     GameObject pointer;
+    Dictionary<Player, List<(Position, GameObject)>> pieces;
     double uiInitialX;
     double uiInitialY;
 
@@ -31,6 +29,7 @@ internal class UI
     {
         this.game = game;
         this.kimble = kimble;
+        pieces = new();
     }
 
 
@@ -39,19 +38,35 @@ internal class UI
         Player player = position.OwnedBy;
         int baseStartsFrom = player.StartingPosition;
         double startAngle;
+        double angle;
+        var safesOrBases = kimble.Board.Positions.Select<Position, SafeOrBase>(x => x as SafeOrBase).Where(x => x is SafeOrBase s && s.OwnedBy == player).ToList();
+        int index = safesOrBases.IndexOf(position);
+        double distance;
         if (position is Safe)
         {
             startAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI);
+            angle = startAngle;
+            distance = SafeDistanceStart - index * 40;
         }
         else
         {
             startAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
+            distance = BaseDistance;
+            angle = startAngle - index * BasicAngleAdd;
         }
-        Type posType = position.GetType();
-        var safesOrBases = kimble.Board.Positions.Select<Position, SafeOrBase>(x => x as SafeOrBase).Where(x => x is SafeOrBase s && s.OwnedBy == player).ToList();
-        int index = safesOrBases.IndexOf(position);
+        Vector posUI = Vector.FromLengthAndAngle(distance, Angle.FromRadians(angle));
+        return posUI;
+    }
 
-        throw new NotImplementedException();
+    private Vector BoardToUIPosition(Base @base)
+    {
+        Player player = @base.OwnedBy;
+        int baseStartsFrom = player.StartingPosition;
+        double baseStartAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
+        var bases = kimble.Board.Positions.Select(x => x).Where(x => x is Base b && b.OwnedBy == @base.OwnedBy).ToList();
+        int index = bases.IndexOf(@base);
+        Vector posUI = Vector.FromLengthAndAngle(BaseDistance, Angle.FromRadians(baseStartAngle - index * BasicAngleAdd));
+        return posUI;
     }
 
     private Vector BoardToUIPosition(Safe safe)
@@ -65,22 +80,17 @@ internal class UI
         return posUI;
     }
 
+    internal void MovePiece(int selected, int diceNow)
+    {
+        return;
+        throw new NotImplementedException();
+    }
+
     private Vector BoardToUIPosition(Position position)
     {
         var basicPositions = kimble.Board.Positions.Select(pos => pos).Where(pos => pos is not Base && pos is not Safe).ToList();
         int index = basicPositions.IndexOf(position);
         Vector posUI = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(StartAngle - index * BasicAngleAdd));
-        return posUI;
-    }
-
-    private Vector BoardToUIPosition(Base @base)
-    {
-        Player player = @base.OwnedBy;
-        int baseStartsFrom = player.StartingPosition;
-        double baseStartAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
-        var bases = kimble.Board.Positions.Select(x => x).Where(x => x is Base b && b.OwnedBy == @base.OwnedBy).ToList();
-        int index = bases.IndexOf(@base);
-        Vector posUI = Vector.FromLengthAndAngle(BaseDistance, Angle.FromRadians(baseStartAngle - index * BasicAngleAdd));
         return posUI;
     }
 
@@ -105,9 +115,22 @@ internal class UI
 
             for (int j = 0; j < 4; j++)
             {
+                Player p = kimble.Players[i];
                 Base baseNow = kimble.Board.Positions[baseStartsFrom + j] as Base;
                 Vector position = BoardToUIPosition(baseNow);
                 DrawPosition(i, baseStartsFrom, j, position);
+                GameObject piece = new GameObject(20, 20, Shape.Circle);
+                piece.Color = p.Color.ToJypeliColor();
+                piece.Position = position;
+                game.Add(piece);
+                if (pieces.ContainsKey(p))
+                {
+                    pieces[p].Add((baseNow, piece));
+                }
+                else
+                {
+                    pieces.Add(p, new() { (baseNow, piece) });
+                }
             }
         }
 
@@ -242,5 +265,13 @@ internal class UI
     {
         if (s.Length == 0) youCanMove.Text = "";
         else youCanMove.Text = s;
+    }
+
+    public void UpdateBoardPositions()
+    {
+        //var occupied = kimble.Board.OccupiedPositions();
+        foreach (var piece in pieces)
+        {
+        }
     }
 }

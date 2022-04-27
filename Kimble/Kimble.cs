@@ -110,4 +110,6 @@ internal class Kimble
     {
         return string.Join(", ", Board.Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(player)).Select(pos => Board.GetIndexOf(pos)));
     }
+
+  
 }

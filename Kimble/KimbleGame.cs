@@ -77,6 +77,7 @@ public class KimbleGame : Game
             MessageDisplay.Add($"Moved piece from position {selected}");
             //kimble.Board.MovePieceToNewPosition(selected, selected + diceNumber);
             kimble.Move(selected);
+            ui.MovePiece(selected, kimble.DiceNow);
         };
         return iw;
     }

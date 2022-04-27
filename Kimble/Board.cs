@@ -249,4 +249,10 @@ public class Board
         } while (true);
         return Positions[index];
     }
+
+    public Position[] OccupiedPositions()
+    {
+        var occupied = Positions.Select(pos => pos).Where(pos => !pos.IsVacant().isVacant);
+        return occupied.ToArray();
+    }
 }
