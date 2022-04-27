@@ -1,4 +1,5 @@
 using Jypeli;
+using System;
 
 namespace Kimble;
 
@@ -25,7 +26,7 @@ public class KimbleGame : Game
         string movablesStr = "";
         var piecesThatCanMove = kimble.ThrowDice();
         MessageDisplay.Add($"{kimble.PlayerInTurn.Color} heitti: {kimble.DiceNow}");
-        kimble.PiecesThatCanMove.ForEach(p => movablesStr += kimble.Board.GetIndexOf(p.aboutToMove) + ", ");
+        kimble.PiecesThatCanMove.ForEach(p => movablesStr += kimble.Board.GetIndexOf(p.oldPosition) + ", ");
         ui.UpdateDiceLabel($"Dice shows: {kimble.DiceNow}");
         ui.UpdateLabels();
         if (kimble.PiecesThatCanMove.Count != 0)
@@ -40,7 +41,6 @@ public class KimbleGame : Game
                 {
                     MessageDisplay.Add("Heitä uudestaan");
                     ui.UpdateDiceLabel("");
-                    //ThrowDice();
                     return;
                 }
                 else NewTurn();
@@ -74,9 +74,11 @@ public class KimbleGame : Game
         iw.TextEntered += delegate (InputWindow iw)
         {
             int selected = int.Parse(iw.InputBox.Text);
+            Position oldPos = kimble.Board.Positions[selected];
+            Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
             MessageDisplay.Add($"Moved piece from position {selected}");
             //kimble.Board.MovePieceToNewPosition(selected, selected + diceNumber);
-            kimble.Move(selected);
+            kimble.Move(oldPos, newPos);
             ui.MovePiece(selected, kimble.DiceNow);
         };
         return iw;

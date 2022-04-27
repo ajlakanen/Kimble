@@ -10,7 +10,7 @@ internal class Kimble
     public readonly Board Board;
     public Player PlayerInTurn { get; private set; }
     public int DiceNow { get; set; }
-    public List<(Position aboutToMove, Position newPosition)> PiecesThatCanMove { get; private set; }
+    public List<(Position oldPosition, Position newPosition)> PiecesThatCanMove { get; private set; }
 
     public bool GameOver = false;
 
@@ -58,16 +58,17 @@ internal class Kimble
         return Move(Board.Positions[oldPosition]);
     }
 
+
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="aboutToMove"></param>
+    /// <param name="oldPosition"></param>
     /// <param name="diceNumber"></param>
     /// <returns>Has the player won</returns>
-    public bool Move(Position aboutToMove)
+    public bool Move(Position oldPosition, Position newPosition)
     {
         // Move the selected piece
-        var newPosition = PiecesThatCanMove.Select(x => x).Where(x => x.aboutToMove == aboutToMove).First().newPosition;
+        // var newPosition = PiecesThatCanMove.Select(x => x).Where(x => x.oldPosition == oldPosition).First().newPosition;
         // var newPosition = Board.CalculateNewPosition(PlayerInTurn, DiceNow, aboutToMove);
         var newPositionIndex = Board.GetIndexOf(newPosition);
 
@@ -77,7 +78,47 @@ internal class Kimble
             Board.MovePieceToBase(newPosition);
         }
 
-        aboutToMove.MovePlayerTo(newPosition); // TODO: Can this fail??
+        oldPosition.MovePlayerTo(newPosition); // TODO: Can this fail??
+
+        // If all pieces are in safe, player in turn wins
+        if (Board.Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(PlayerInTurn)).All(pos => pos is Safe))
+        {
+            GameOver = true;
+            return true;
+        }
+        return false;
+
+        // If dice showed 6, repeat the Turn with the same player. 
+        if (DiceNow == 6)
+        {
+            ThrowDice();
+            return false;
+        }
+
+        NextPlayer();
+        return false;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="oldPosition"></param>
+    /// <param name="diceNumber"></param>
+    /// <returns>Has the player won</returns>
+    public bool Move(Position oldPosition)
+    {
+        // Move the selected piece
+        var newPosition = PiecesThatCanMove.Select(x => x).Where(x => x.oldPosition == oldPosition).First().newPosition;
+        // var newPosition = Board.CalculateNewPosition(PlayerInTurn, DiceNow, aboutToMove);
+        var newPositionIndex = Board.GetIndexOf(newPosition);
+
+        // If there was opponent's piece, move opponent to base
+        if (!(newPosition.IsVacant().isVacant))
+        {
+            Board.MovePieceToBase(newPosition);
+        }
+
+        oldPosition.MovePlayerTo(newPosition); // TODO: Can this fail??
 
         // If all pieces are in safe, player in turn wins
         if (Board.Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(PlayerInTurn)).All(pos => pos is Safe))
