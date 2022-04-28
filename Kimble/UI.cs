@@ -83,11 +83,12 @@ internal class UI
 
     internal void MovePiece(Player player, Position oldPosition, Position newPosition)
     {
-        // var piece = pieces.Select(go => go.Value).Where(x => x. != oldPosition).ToList();
         var list = pieces[player];
         (Position position, GameObject piece) = pieces[player].Select(x => x).Where(x => x.Item1 == oldPosition).First();
         int index = list.IndexOf((position, piece));
-        piece.Position = BoardToUIPosition(newPosition);
+        if (newPosition is Safe) piece.Position = BoardToUIPosition(newPosition as Safe);
+        else if (newPosition is Base) piece.Position = BoardToUIPosition(newPosition as Base);
+        else piece.Position = BoardToUIPosition(newPosition);
         position = newPosition;
         list[index] = (position, piece);
     }
@@ -136,7 +137,7 @@ internal class UI
                 }
                 else
                 {
-                    pieces.Add(p, new() { ( baseNow, piece ) });
+                    pieces.Add(p, new() { (baseNow, piece) });
                 }
             }
         }
