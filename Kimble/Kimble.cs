@@ -48,7 +48,7 @@ internal class Kimble
         Random random = new();
         // Throw dice
         DiceNow = random.Next(1, 7);
-        // Check which pieces can move. Note: Player can not move piece if target position is occupied by his own piece. 
+        // Check which pieces can move. 
         PiecesThatCanMove = Board.MovablePositions(PlayerInTurn, DiceNow);
         return PiecesThatCanMove;
     }
@@ -73,7 +73,7 @@ internal class Kimble
         var newPositionIndex = Board.GetIndexOf(newPosition);
 
         // If there was opponent's piece, move opponent to base
-        if (!(newPosition.IsVacant().isVacant))
+        if (!(newPosition.IsVacant()))
         {
             Board.MovePieceToBase(newPosition);
         }
@@ -113,7 +113,7 @@ internal class Kimble
         var newPositionIndex = Board.GetIndexOf(newPosition);
 
         // If there was opponent's piece, move opponent to base
-        if (!(newPosition.IsVacant().isVacant))
+        if (!(newPosition.IsVacant()))
         {
             Board.MovePieceToBase(newPosition);
         }

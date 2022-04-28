@@ -66,7 +66,7 @@ public class Board
     }
 
     /// <summary>
-    /// Gives a (Position, Position) tuple which holds those pieces that 
+    /// Gives a list of (Position, Position) tuples which holds those pieces that 
     /// player can move, and their new position counterparts. Pieces are
     /// selected with the following rules:
     ///  - Piece can move from the base to the starting position.
@@ -92,7 +92,7 @@ public class Board
             if (movable is Base) newPosition = Positions[player.StartingPosition + 4];
 
             // b. Is the piece already in last safe position, it cannot move and we don't add it to the list. 
-            // else if (!LaterSafePositionExists(movable, player)) continue;
+            else if (movable is Safe safe && !LaterSafePositionExists(safe, player)) continue;
             
             // c. Other positions have to be calculated.             
             else newPosition = CalculateNewPosition(player, diceNumber, movable);
@@ -142,19 +142,16 @@ public class Board
     internal Position CalculateNewPosition(Player player, int diceNumber, Position oldPosition)
     {
         if (oldPosition is Base) return Positions[player.StartingPosition + 4];
-
         Position newPosition = oldPosition;
 
         for (int j = 0; j < diceNumber; j++)
         {
             newPosition = NextBoardPosition(player, newPosition);
-            // If the position is player's LAST vacant own safe, we stop there. 
             if (newPosition is Safe)
             {
-                if (LaterSafePositionExists(newPosition, player))
-                    return newPosition;
+                // If the position is player's LAST vacant own safe, we stop there. 
+                if (!LaterSafePositionExists(newPosition as Safe, player)) return newPosition;
             }
-
         }
         return newPosition;
     }
@@ -164,19 +161,17 @@ public class Board
     /// Note: if piece is in the last vacant safe position, 
     /// we should not be able to move it anymore. 
     /// </summary>
-    /// <param name="candidate">Position</param>
+    /// <param name="safe">Position</param>
     /// <param name="player">Player</param>
     /// <returns>Is this the last vacant safe position</returns>
-    private bool LaterSafePositionExists(Position candidate, Player player)
+    private bool LaterSafePositionExists(Safe safe, Player player)
     {
         int end = player.LastSafePosition;
-        // TODO: This for loop is logically wrong. We should be calculating
-        // distance from the safe when the board is understood as a circle,
-        // not an array with start and end per sé. 
-        int thisPos = Array.IndexOf(Positions, candidate);
-        for (int i = end; i >= Math.Max(thisPos + 1, end - 3); i--)
+        int thisPos = Array.IndexOf(Positions, safe);
+        while(end > thisPos)
         {
-            if (Positions[i].IsVacant().isVacant) return true;
+            if (Positions[end].IsVacant()) return true;
+            end--;
         }
         return false;
     }
@@ -187,13 +182,13 @@ public class Board
     /// <param name="oldPosition">Current position.</param>
     public void MovePieceToBase(Position oldPosition)
     {
-        if (oldPosition.IsVacant().player == null) return;
-        Player player = oldPosition.IsVacant().player;
+        if (oldPosition.IsVacant()) return;
+        Player player = oldPosition.PlayerInPosition;
         int firstBasePos = player.StartingPosition;
         int basePos = firstBasePos;
         do
         {
-            if (!(this[basePos].IsVacant().isVacant)) basePos++;
+            if (!(this[basePos].IsVacant())) basePos++;
             else
             {
                 MovePieceToNewPosition(oldPosition, this[basePos]);
@@ -242,7 +237,6 @@ public class Board
             Position position = this.Positions[index];
             // Bases can not be re-entered from the base positions.
             if (position is Base) continue;
-
             // Player can not go to others' safes.
             else if (position is Safe safe && safe.OwnedBy != player) continue;
             else break;
@@ -252,7 +246,7 @@ public class Board
 
     public Position[] OccupiedPositions()
     {
-        var occupied = Positions.Select(pos => pos).Where(pos => !pos.IsVacant().isVacant);
+        var occupied = Positions.Select(pos => pos).Where(pos => !pos.IsVacant());
         return occupied.ToArray();
     }
 }

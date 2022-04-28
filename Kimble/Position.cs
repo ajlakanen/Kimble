@@ -17,7 +17,7 @@ public class Position
     /// <summary>
     /// Player that is currently in the position.
     /// </summary>
-    protected Player PlayerInPosition
+    public Player PlayerInPosition
     {
         get
         {
@@ -42,9 +42,13 @@ public class Position
     /// Is position vacant. If not vacant, return also the piece in the position. 
     /// </summary>
     /// <returns></returns>
-    public (bool isVacant, Player player) IsVacant()
+    //public (bool isVacant, Player player) IsVacant()
+    //{
+    //    return isVacant ? (isVacant, null) : (isVacant, PlayerInPosition);
+    //}
+    public bool IsVacant()
     {
-        return isVacant ? (isVacant, null) : (isVacant, PlayerInPosition);
+        return isVacant;
     }
 
     /// <summary>
