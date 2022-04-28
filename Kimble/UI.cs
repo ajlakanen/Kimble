@@ -21,6 +21,7 @@ internal class UI
     Label dice;
     Label youCanMove;
     GameObject pointer;
+    // Dictionary<Color, List<(Position, GameObject)>> pieces;
     Dictionary<Player, List<(Position, GameObject)>> pieces;
     double uiInitialX;
     double uiInitialY;
@@ -62,7 +63,7 @@ internal class UI
     {
         Player player = @base.OwnedBy;
         int baseStartsFrom = player.StartingPosition;
-        double baseStartAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
+        double baseStartAngle = StartAngle - ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
         var bases = kimble.Board.Positions.Select(x => x).Where(x => x is Base b && b.OwnedBy == @base.OwnedBy).ToList();
         int index = bases.IndexOf(@base);
         Vector posUI = Vector.FromLengthAndAngle(BaseDistance, Angle.FromRadians(baseStartAngle - index * BasicAngleAdd));
@@ -73,17 +74,22 @@ internal class UI
     {
         Player player = safe.OwnedBy;
         int baseStartsFrom = player.StartingPosition;
-        double safeStartAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI);
+        double safeStartAngle = StartAngle - ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI);
         var safes = kimble.Board.Positions.Select(x => x).Where(x => x is Safe s && s.OwnedBy == safe.OwnedBy).ToList();
         int index = safes.IndexOf(safe);
         Vector posUI = Vector.FromLengthAndAngle(SafeDistanceStart - index * 40, Angle.FromRadians(safeStartAngle));
         return posUI;
     }
 
-    internal void MovePiece(int selected, int diceNow)
+    internal void MovePiece(Player player, Position oldPosition, Position newPosition)
     {
-        return;
-        throw new NotImplementedException();
+        // var piece = pieces.Select(go => go.Value).Where(x => x. != oldPosition).ToList();
+        var list = pieces[player];
+        (Position position, GameObject piece) = pieces[player].Select(x => x).Where(x => x.Item1 == oldPosition).First();
+        int index = list.IndexOf((position, piece));
+        piece.Position = BoardToUIPosition(newPosition);
+        position = newPosition;
+        list[index] = (position, piece);
     }
 
     private Vector BoardToUIPosition(Position position)
@@ -125,11 +131,12 @@ internal class UI
                 game.Add(piece);
                 if (pieces.ContainsKey(p))
                 {
+                    // pieces[p.Color].Add((baseNow, piece));
                     pieces[p].Add((baseNow, piece));
                 }
                 else
                 {
-                    pieces.Add(p, new() { (baseNow, piece) });
+                    pieces.Add(p, new() { ( baseNow, piece ) });
                 }
             }
         }
@@ -162,10 +169,10 @@ internal class UI
         {
             background.Color = Jypeli.Color.White;
         }
-        Label l = new(boardIndex + add + "");
-        l.Position = position;
+        //Label l = new(boardIndex + add + "");
+        //l.Position = position;
         background.Position = position;
-        game.Add(l);
+        //game.Add(l);
         game.Add(g);
         game.Add(background, -1);
     }
