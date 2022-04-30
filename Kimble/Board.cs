@@ -197,6 +197,22 @@ public class Board
         } while (basePos < firstBasePos + 4);
     }
 
+    public Base GetVacantBasePosition(Player player)
+    {
+        int firstBasePos = player.StartingPosition;
+        int basePos = firstBasePos;
+        do
+        {
+            if (!(this[basePos].IsVacant())) basePos++;
+            else
+            {
+                return this[basePos] as Base;
+            }
+        } while (basePos < firstBasePos + 4);
+        return this[basePos] as Base;
+    }
+
+
     public int GetIndexOf(Position position)
     {
         return Array.IndexOf(this.Positions, position);

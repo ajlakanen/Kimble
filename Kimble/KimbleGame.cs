@@ -77,8 +77,8 @@ public class KimbleGame : Game
             Position oldPos = kimble.Board.Positions[selected];
             Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
             MessageDisplay.Add($"Moved piece from position {selected}");
-            kimble.Move(oldPos, newPos);
-            ui.MovePiece(kimble.PlayerInTurn, oldPos, newPos);
+            kimble.Move(oldPos, newPos, ui.MovePiece);
+            //ui.MovePiece(kimble.PlayerInTurn, oldPos, newPos);
         };
         return iw;
     }
