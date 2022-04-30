@@ -53,12 +53,6 @@ internal class Kimble
         return PiecesThatCanMove;
     }
 
-    public bool Move(int oldPosition)
-    {
-        return Move(Board.Positions[oldPosition]);
-    }
-
-
     /// <summary>
     /// 
     /// </summary>
@@ -68,8 +62,6 @@ internal class Kimble
     public bool Move(Position oldPosition, Position newPosition)
     {
         // Move the selected piece
-        // var newPosition = PiecesThatCanMove.Select(x => x).Where(x => x.oldPosition == oldPosition).First().newPosition;
-        // var newPosition = Board.CalculateNewPosition(PlayerInTurn, DiceNow, aboutToMove);
         var newPositionIndex = Board.GetIndexOf(newPosition);
 
         // If there was opponent's piece, move opponent to base
@@ -86,56 +78,6 @@ internal class Kimble
             GameOver = true;
             return true;
         }
-        return false;
-
-        // If dice showed 6, repeat the Turn with the same player. 
-        if (DiceNow == 6)
-        {
-            ThrowDice();
-            return false;
-        }
-
-        NextPlayer();
-        return false;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="oldPosition"></param>
-    /// <param name="diceNumber"></param>
-    /// <returns>Has the player won</returns>
-    public bool Move(Position oldPosition)
-    {
-        // Move the selected piece
-        var newPosition = PiecesThatCanMove.Select(x => x).Where(x => x.oldPosition == oldPosition).First().newPosition;
-        // var newPosition = Board.CalculateNewPosition(PlayerInTurn, DiceNow, aboutToMove);
-        var newPositionIndex = Board.GetIndexOf(newPosition);
-
-        // If there was opponent's piece, move opponent to base
-        if (!(newPosition.IsVacant()))
-        {
-            Board.MovePieceToBase(newPosition);
-        }
-
-        oldPosition.MovePlayerTo(newPosition); // TODO: Can this fail??
-
-        // If all pieces are in safe, player in turn wins
-        if (Board.Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(PlayerInTurn)).All(pos => pos is Safe))
-        {
-            GameOver = true;
-            return true;
-        }
-        return false;
-
-        // If dice showed 6, repeat the Turn with the same player. 
-        if (DiceNow == 6)
-        {
-            ThrowDice();
-            return false;
-        }
-
-        NextPlayer();
         return false;
     }
 

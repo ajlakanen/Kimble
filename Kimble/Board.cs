@@ -91,7 +91,7 @@ public class Board
             // a. From base the piece can go only to the starting position
             if (movable is Base) newPosition = Positions[player.StartingPosition + 4];
 
-            // b. Is the piece already in last safe position, it cannot move and we don't add it to the list. 
+            // b. Is the piece already in last safe position, it cannot move and we won't add it to the list. 
             else if (movable is Safe safe && !LaterSafePositionExists(safe, player)) continue;
             
             // c. Other positions have to be calculated.             
@@ -99,11 +99,11 @@ public class Board
 
             // Phase 2. 
             // We'll check if player's own piece is in the position.
-            // If it is, player can not move there and we don't add it to the list. 
+            // If it is, player can not move there and we won't add it to the list. 
             if (newPosition.PositionOccupiedBy(player)) continue;
 
             // After all this, we are ready to add a movable and its
-            // new position to the tuples
+            // new position to the tuples.
             movablesNewPositions.Add((movable, newPosition));
         }
 
@@ -191,30 +191,10 @@ public class Board
             if (!(this[basePos].IsVacant())) basePos++;
             else
             {
-                MovePieceToNewPosition(oldPosition, this[basePos]);
+                oldPosition.MovePlayerTo(this[basePos]);
                 break;
             }
         } while (basePos < firstBasePos + 4);
-    }
-
-    /// <summary>
-    /// Move player to a new position.
-    /// </summary>
-    /// <param name="oldPosition">Current position</param>
-    /// <param name="newPosition">New position</param>
-    public static void MovePieceToNewPosition(Position oldPosition, Position newPosition)
-    {
-        oldPosition.MovePlayerTo(newPosition);
-    }
-
-    /// <summary>
-    /// Move player to a new position.
-    /// </summary>
-    /// <param name="oldPosition">Current position</param>
-    /// <param name="newPosition">New position</param>
-    public void MovePieceToNewPosition(int oldPosition, int newPosition)
-    {
-        MovePieceToNewPosition(Positions[oldPosition], Positions[newPosition]);
     }
 
     public int GetIndexOf(Position position)

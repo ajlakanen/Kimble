@@ -26,16 +26,12 @@ public static class ColorExtensions
         {   
             case Color.Red:
                 return Jypeli.Color.Red;
-                break;
             case Color.Green:
                 return Jypeli.Color.Green;
-                break;
             case Color.Yellow:
                 return Jypeli.Color.Yellow;
-                break;
             case Color.Blue:
                 return Jypeli.Color.Blue;
-                break;
             default:
                 break;
         }
