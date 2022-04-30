@@ -21,8 +21,9 @@ internal class UI
     Label dice;
     Label youCanMove;
     GameObject pointer;
+
     // Dictionary<Color, List<(Position, GameObject)>> pieces;
-    Dictionary<Player, List<(Position, GameObject)>> pieces;
+    readonly Dictionary<Player, List<(Position, GameObject)>> pieces;
     double uiInitialX;
     double uiInitialY;
 
@@ -126,9 +127,11 @@ internal class UI
                 Base baseNow = kimble.Board.Positions[baseStartsFrom + j] as Base;
                 Vector position = BoardToUIPosition(baseNow);
                 DrawPosition(i, baseStartsFrom, j, position);
-                GameObject piece = new GameObject(20, 20, Shape.Circle);
-                piece.Color = p.Color.ToJypeliColor();
-                piece.Position = position;
+                GameObject piece = new(20, 20, Shape.Circle)
+                {
+                    Color = p.Color.ToJypeliColor(),
+                    Position = position
+                };
                 game.Add(piece);
                 if (pieces.ContainsKey(p))
                 {
@@ -170,6 +173,7 @@ internal class UI
         {
             background.Color = Jypeli.Color.White;
         }
+
         //Label l = new(boardIndex + add + "");
         //l.Position = position;
         background.Position = position;
@@ -203,8 +207,10 @@ internal class UI
 
     private void CreatePointer(double x, double y)
     {
-        pointer = new GameObject(20, 80, Shape.Triangle);
-        pointer.Angle = Angle.FromRadians(-Math.PI / 2);
+        pointer = new GameObject(20, 80, Shape.Triangle)
+        {
+            Angle = Angle.FromRadians(-Math.PI / 2)
+        };
         pointer.X = x - pointer.Height;
         pointer.Y = y - 10;
         game.Add(pointer);
@@ -240,7 +246,7 @@ internal class UI
             Label label = new()
             {
                 TextColor = colors[player.Color],
-                Text = $"{player.Color.Stringify()} ({player.LastSafePosition}): {kimble.PrintPositions(player)}",
+                Text = $"{player.Color.Stringify()} ({player.LastSafePosition}): {kimble.Board.PrintPositions(player)}",
                 Color = Jypeli.Color.Black
             };
             label.Left = x;
@@ -257,7 +263,7 @@ internal class UI
     {
         foreach (var label in labels)
         {
-            label.Value.Text = $"{label.Key.Color.Stringify()} ({label.Key.LastSafePosition}): {kimble.PrintPositions(label.Key)}";
+            label.Value.Text = $"{label.Key.Color.Stringify()} ({label.Key.LastSafePosition}): {kimble.Board.PrintPositions(label.Key)}";
         }
 
         pointer.Y = uiInitialY - (Array.IndexOf(kimble.Players, kimble.PlayerInTurn) * dice.Height * 1.5) - 10;
@@ -273,13 +279,5 @@ internal class UI
     {
         if (s.Length == 0) youCanMove.Text = "";
         else youCanMove.Text = s;
-    }
-
-    public void UpdateBoardPositions()
-    {
-        //var occupied = kimble.Board.OccupiedPositions();
-        foreach (var piece in pieces)
-        {
-        }
     }
 }

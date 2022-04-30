@@ -223,4 +223,10 @@ public class Board
         var occupied = Positions.Select(pos => pos).Where(pos => !pos.IsVacant());
         return occupied.ToArray();
     }
+
+    public string PrintPositions(Player player)
+    {
+        return string.Join(", ", Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(player)).Select(pos => GetIndexOf(pos)));
+    }
+
 }

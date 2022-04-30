@@ -4,16 +4,52 @@ using System.Linq;
 
 namespace Kimble;
 
+/// <summary>
+/// Kimble main class.
+/// </summary>
 internal class Kimble
 {
+    /// <summary>
+    /// Players.
+    /// </summary>
     public readonly Player[] Players = new Player[4];
+
+    /// <summary>
+    /// Board.
+    /// </summary>
     public readonly Board Board;
+
+    /// <summary>
+    /// Player currently in turn. 
+    /// </summary>
     public Player PlayerInTurn { get; private set; }
+
+    /// <summary>
+    /// Dice now. 
+    /// </summary>
     public int DiceNow { get; set; }
+
+    /// <summary>
+    /// Pieces that are currently movable (oldPosition) and their new position counterparts. 
+    /// </summary>
     public List<(Position oldPosition, Position newPosition)> PiecesThatCanMove { get; private set; }
 
+    /// <summary>
+    /// Game over. 
+    /// </summary>
     public bool GameOver = false;
 
+    /// <summary>
+    /// Move handler. Function is passed by the UI and used to move the UI pieces. 
+    /// </summary>
+    /// <param name="player">Player</param>
+    /// <param name="oldPos">Old position</param>
+    /// <param name="newPos">New position.</param>
+    public delegate void MoveHandler(Player player, Position oldPos, Position newPos);
+
+    /// <summary>
+    /// Initialize players and board.
+    /// </summary>
     public Kimble()
     {
         Players = MakePlayers();
@@ -53,7 +89,6 @@ internal class Kimble
         return PiecesThatCanMove;
     }
 
-    public delegate void MoveHandler(Player player, Position oldPos, Position newPos);
 
     /// <summary>
     /// 
@@ -96,10 +131,4 @@ internal class Kimble
         PlayerInTurn = Players[(Array.IndexOf(Players, PlayerInTurn) + 1) % 4];
     }
 
-    public string PrintPositions(Player player)
-    {
-        return string.Join(", ", Board.Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(player)).Select(pos => Board.GetIndexOf(pos)));
-    }
-
-  
 }
