@@ -176,27 +176,6 @@ public class Board
         return false;
     }
 
-    /// <summary>
-    /// Move a piece from position to base.
-    /// </summary>
-    /// <param name="oldPosition">Current position.</param>
-    public void MovePieceToBase(Position oldPosition)
-    {
-        if (oldPosition.IsVacant()) return;
-        Player player = oldPosition.PlayerInPosition;
-        int firstBasePos = player.StartingPosition;
-        int basePos = firstBasePos;
-        do
-        {
-            if (!(this[basePos].IsVacant())) basePos++;
-            else
-            {
-                oldPosition.MovePlayerTo(this[basePos]);
-                break;
-            }
-        } while (basePos < firstBasePos + 4);
-    }
-
     public Base GetVacantBasePosition(Player player)
     {
         int firstBasePos = player.StartingPosition;
@@ -211,7 +190,6 @@ public class Board
         } while (basePos < firstBasePos + 4);
         return this[basePos] as Base;
     }
-
 
     public int GetIndexOf(Position position)
     {
