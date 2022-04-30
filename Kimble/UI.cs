@@ -10,7 +10,7 @@ internal class UI
     const int TotalPositions = Board.TotalNumberOfPositions;
     const int TotalBasicPositions = Board.TotalNumberOfPositions - 4 * (4 + 4);
     const double BasicAngleAdd = (Math.PI * 2) / (double)TotalBasicPositions;
-    const double BaseDistance = 360.0;
+    const double HomeDistance = 360.0;
     const double BasicDistance = 300.0;
     const double SafeDistanceStart = 260.0;
     const double StartAngle = Math.PI / 2;
@@ -35,47 +35,47 @@ internal class UI
     }
 
 
-    private Vector BoardToUIPosition2(SafeOrBase position)
+    private Vector BoardToUIPosition2(HomeOrSafe position)
     {
         Player player = position.OwnedBy;
-        int baseStartsFrom = player.StartingPosition;
+        int homeStartsFrom = player.HomeStartsFrom;
         double startAngle;
         double angle;
-        var safesOrBases = kimble.Board.Positions.Select<Position, SafeOrBase>(x => x as SafeOrBase).Where(x => x is SafeOrBase s && s.OwnedBy == player).ToList();
-        int index = safesOrBases.IndexOf(position);
+        var homesOrSafes = kimble.Board.Positions.Select<Position, HomeOrSafe>(x => x as HomeOrSafe).Where(x => x is HomeOrSafe s && s.OwnedBy == player).ToList();
+        int index = homesOrSafes.IndexOf(position);
         double distance;
         if (position is Safe)
         {
-            startAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI);
+            startAngle = StartAngle + ((homeStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI);
             angle = startAngle;
             distance = SafeDistanceStart - index * 40;
         }
         else
         {
-            startAngle = StartAngle + ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
-            distance = BaseDistance;
+            startAngle = StartAngle + ((homeStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
+            distance = HomeDistance;
             angle = startAngle - index * BasicAngleAdd;
         }
         Vector posUI = Vector.FromLengthAndAngle(distance, Angle.FromRadians(angle));
         return posUI;
     }
 
-    private Vector BoardToUIPosition(Base @base)
+    private Vector BoardToUIPosition(Home home)
     {
-        Player player = @base.OwnedBy;
-        int baseStartsFrom = player.StartingPosition;
-        double baseStartAngle = StartAngle - ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
-        var bases = kimble.Board.Positions.Select(x => x).Where(x => x is Base b && b.OwnedBy == @base.OwnedBy).ToList();
-        int index = bases.IndexOf(@base);
-        Vector posUI = Vector.FromLengthAndAngle(BaseDistance, Angle.FromRadians(baseStartAngle - index * BasicAngleAdd));
+        Player player = home.OwnedBy;
+        int homeStartsFrom = player.HomeStartsFrom;
+        double homeStartAngle = StartAngle - ((homeStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI) + 3 * BasicAngleAdd;
+        var homes = kimble.Board.Positions.Select(x => x).Where(x => x is Home b && b.OwnedBy == home.OwnedBy).ToList();
+        int index = homes.IndexOf(home);
+        Vector posUI = Vector.FromLengthAndAngle(HomeDistance, Angle.FromRadians(homeStartAngle - index * BasicAngleAdd));
         return posUI;
     }
 
     private Vector BoardToUIPosition(Safe safe)
     {
         Player player = safe.OwnedBy;
-        int baseStartsFrom = player.StartingPosition;
-        double safeStartAngle = StartAngle - ((baseStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI);
+        int homeStartsFrom = player.HomeStartsFrom;
+        double safeStartAngle = StartAngle - ((homeStartsFrom * 1.0 / TotalPositions) * 2 * Math.PI);
         var safes = kimble.Board.Positions.Select(x => x).Where(x => x is Safe s && s.OwnedBy == safe.OwnedBy).ToList();
         int index = safes.IndexOf(safe);
         Vector posUI = Vector.FromLengthAndAngle(SafeDistanceStart - index * 40, Angle.FromRadians(safeStartAngle));
@@ -88,7 +88,7 @@ internal class UI
         (Position position, GameObject piece) = pieces[player].Select(x => x).Where(x => x.Item1 == oldPosition).First();
         int index = list.IndexOf((position, piece));
         if (newPosition is Safe) piece.Position = BoardToUIPosition(newPosition as Safe);
-        else if (newPosition is Base) piece.Position = BoardToUIPosition(newPosition as Base);
+        else if (newPosition is Home) piece.Position = BoardToUIPosition(newPosition as Home);
         else piece.Position = BoardToUIPosition(newPosition);
         position = newPosition;
         list[index] = (position, piece);
@@ -96,7 +96,7 @@ internal class UI
 
     private Vector BoardToUIPosition(Position position)
     {
-        var basicPositions = kimble.Board.Positions.Select(pos => pos).Where(pos => pos is not Base && pos is not Safe).ToList();
+        var basicPositions = kimble.Board.Positions.Select(pos => pos).Where(pos => pos is not Home && pos is not Safe).ToList();
         int index = basicPositions.IndexOf(position);
         Vector posUI = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(StartAngle - index * BasicAngleAdd));
         return posUI;
@@ -111,22 +111,22 @@ internal class UI
         for (int i = 0; i < TotalPositions; i++)
         {
             now = kimble.Board.Positions[i];
-            if (now is Base || now is Safe) continue;
+            if (now is Home || now is Safe) continue;
             Vector position = BoardToUIPosition(now);
             DrawPosition(-1, i, 0, position);
         }
 
-        // Bases
+        // Homes
         for (int i = 0; i < kimble.Players.Length; i++)
         {
-            int baseStartsFrom = kimble.Players[i].StartingPosition;
+            int homeStartsFrom = kimble.Players[i].HomeStartsFrom;
 
             for (int j = 0; j < 4; j++)
             {
                 Player p = kimble.Players[i];
-                Base baseNow = kimble.Board.Positions[baseStartsFrom + j] as Base;
-                Vector position = BoardToUIPosition(baseNow);
-                DrawPosition(i, baseStartsFrom, j, position);
+                Home homeNow = kimble.Board.Positions[homeStartsFrom + j] as Home;
+                Vector position = BoardToUIPosition(homeNow);
+                DrawPosition(i, homeStartsFrom, j, position);
                 GameObject piece = new(20, 20, Shape.Circle)
                 {
                     Color = p.Color.ToJypeliColor(),
@@ -135,12 +135,11 @@ internal class UI
                 game.Add(piece);
                 if (pieces.ContainsKey(p))
                 {
-                    // pieces[p.Color].Add((baseNow, piece));
-                    pieces[p].Add((baseNow, piece));
+                    pieces[p].Add((homeNow, piece));
                 }
                 else
                 {
-                    pieces.Add(p, new() { (baseNow, piece) });
+                    pieces.Add(p, new() { (homeNow, piece) });
                 }
             }
         }
@@ -148,7 +147,7 @@ internal class UI
         // Safes
         for (int i = 0; i < Rules.colorsAndStartingPositions.Length; i++)
         {
-            int safeStartsFrom = kimble.Players[i].LastSafePosition - 3;
+            int safeStartsFrom = kimble.Players[i].SafeEnd - 3;
             for (int j = 0; j < 4; j++)
             {
                 Vector position = BoardToUIPosition(kimble.Board.Positions[safeStartsFrom + j] as Safe);
@@ -246,7 +245,7 @@ internal class UI
             Label label = new()
             {
                 TextColor = colors[player.Color],
-                Text = $"{player.Color.Stringify()} ({player.LastSafePosition}): {kimble.Board.PrintPositions(player)}",
+                Text = $"{player.Color.Stringify()} ({player.SafeEnd}): {kimble.Board.PrintPositions(player)}",
                 Color = Jypeli.Color.Black
             };
             label.Left = x;
@@ -263,7 +262,7 @@ internal class UI
     {
         foreach (var label in labels)
         {
-            label.Value.Text = $"{label.Key.Color.Stringify()} ({label.Key.LastSafePosition}): {kimble.Board.PrintPositions(label.Key)}";
+            label.Value.Text = $"{label.Key.Color.Stringify()} ({label.Key.SafeEnd}): {kimble.Board.PrintPositions(label.Key)}";
         }
 
         pointer.Y = uiInitialY - (Array.IndexOf(kimble.Players, kimble.PlayerInTurn) * dice.Height * 1.5) - 10;

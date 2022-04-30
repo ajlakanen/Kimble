@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Kimble;
 
-public class Base : Position, SafeOrBase
+public class Home : Position, HomeOrSafe
 {
     public Player OwnedBy { get; init; }
 
-    public Base(Player player)
+    public Home(Player player)
     {
         OwnedBy = player;
         base.PlayerInPosition = player;

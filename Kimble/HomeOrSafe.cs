@@ -1,6 +1,6 @@
 ﻿namespace Kimble
 {
-    internal interface SafeOrBase
+    internal interface HomeOrSafe
     {
         public Player OwnedBy { get; init; }
     }

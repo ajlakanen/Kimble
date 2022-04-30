@@ -68,16 +68,16 @@ public class Player
     public Color Color { get; init; }
     
     /// <summary>
-    /// Starting position (board array index).
+    /// First home position (board array index).
     /// </summary>
-    public int StartingPosition { get; init; }
+    public int HomeStartsFrom { get; init; }
 
     public double StartingAngle { get; init; }
 
     /// <summary>
     /// Last safe position (board array index).
     /// </summary>
-    public int LastSafePosition { get; init; }
+    public int SafeEnd { get; init; }
     
     /// <summary>
     /// Is player still in the game.

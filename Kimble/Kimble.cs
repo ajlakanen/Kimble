@@ -66,9 +66,9 @@ internal class Kimble
             Player player = new()
             {
                 Color = Rules.colorsAndStartingPositions[i].color,
-                StartingPosition = startPos,
+                HomeStartsFrom = startPos,
                 StartingAngle = Math.PI / 2 - (i * Math.PI / 2),
-                LastSafePosition = startPos - 1 < 0 ? startPos - 1 + Board.TotalNumberOfPositions : startPos - 1
+                SafeEnd = startPos - 1 < 0 ? startPos - 1 + Board.TotalNumberOfPositions : startPos - 1
             };
             Players[i] = player;
         }
@@ -101,14 +101,13 @@ internal class Kimble
         // Move the selected piece
         var newPositionIndex = Board.GetIndexOf(newPosition);
 
-        // If there was opponent's piece, move opponent to base
+        // If there was opponent's piece, move opponent to home
         if (!(newPosition.IsVacant()))
         {
-            // Board.MovePieceToBase(newPosition);
-            Base @base = Board.GetVacantBasePosition(newPosition.PlayerInPosition);
+            Home home = Board.GetVacantHomePosition(newPosition.PlayerInPosition);
             Player playerToMoved = newPosition.PlayerInPosition;
-            newPosition.MovePlayerTo(@base);
-            handler(playerToMoved, newPosition, @base);
+            newPosition.MovePlayerTo(home);
+            handler(playerToMoved, newPosition, home);
         }
 
         oldPosition.MovePlayerTo(newPosition); // TODO: Can this fail??

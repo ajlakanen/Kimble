@@ -16,7 +16,7 @@ public static class Rules
 
     /// <summary>
     /// Player colors and their correspondent starting positions (indices of the Positions table).
-    /// First four indices are bases.
+    /// First four indices are homes.
     /// </summary>
     public static readonly (Color color, int startingPosition)[] colorsAndStartingPositions =
     {
