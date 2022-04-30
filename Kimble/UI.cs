@@ -23,7 +23,7 @@ internal class UI
     GameObject pointer;
 
     // Dictionary<Color, List<(Position, GameObject)>> pieces;
-    readonly Dictionary<Player, List<(Position, GameObject)>> pieces;
+    readonly Dictionary<Player, List<(Position position, GameObject gameObject)>> pieces;
     double uiInitialX;
     double uiInitialY;
 
@@ -85,13 +85,19 @@ internal class UI
     internal void MovePiece(Player player, Position oldPosition, Position newPosition)
     {
         var list = pieces[player];
-        (Position position, GameObject piece) = pieces[player].Select(x => x).Where(x => x.Item1 == oldPosition).First();
+        (Position position, GameObject piece) = pieces[player].Select(x => x).Where(x => x.position == oldPosition).First();
         int index = list.IndexOf((position, piece));
         if (newPosition is Safe) piece.Position = BoardToUIPosition(newPosition as Safe);
         else if (newPosition is Home) piece.Position = BoardToUIPosition(newPosition as Home);
         else piece.Position = BoardToUIPosition(newPosition);
         position = newPosition;
         list[index] = (position, piece);
+    }
+
+    private Position GetCurrentPosition(Player player, GameObject gameObject)
+    {
+        (Position position, GameObject piece) = pieces[player].Select(x => x).Where(x => x.gameObject == gameObject).First();
+        return position;
     }
 
     private Vector BoardToUIPosition(Position position)
@@ -132,6 +138,20 @@ internal class UI
                     Color = p.Color.ToJypeliColor(),
                     Position = position
                 };
+                game.Mouse.ListenOn(piece, MouseButton.Left, ButtonState.Pressed, () =>
+                {
+                    Position piecePos = GetCurrentPosition(p, piece);
+                    game.MessageDisplay.Add("" + Array.IndexOf(kimble.Board.Positions, piecePos));
+                    InputWindow iw = new InputWindow("Give target position");
+                    game.Add(iw);
+                    iw.Closed += delegate
+                    {
+                        int selected = int.Parse(iw.InputBox.Text);
+                        Position newPos = kimble.Board.Positions[selected];
+                        kimble.Move(piecePos, newPos, MovePiece);
+                        // MovePiece(p, piecePos, newPos);
+                    };
+                }, null);
                 game.Add(piece);
                 if (pieces.ContainsKey(p))
                 {
@@ -177,8 +197,8 @@ internal class UI
         //l.Position = position;
         background.Position = position;
         //game.Add(l);
-        game.Add(g);
-        game.Add(background, -1);
+        game.Add(g, -1);
+        game.Add(background, -2);
     }
 
     public void CreateLabels(double x, double y)
