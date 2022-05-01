@@ -82,13 +82,10 @@ internal class Kimble
     public List<(Position, Position)> ThrowDice()
     {
         Random random = new();
-        // Throw dice
         DiceNow = random.Next(1, 7);
-        // Check which pieces can move. 
         PiecesThatCanMove = Board.MovablePositions(PlayerInTurn, DiceNow);
         return PiecesThatCanMove;
     }
-
 
     /// <summary>
     /// 
@@ -98,9 +95,6 @@ internal class Kimble
     /// <returns>Has the player won</returns>
     public bool Move(Position oldPosition, Position newPosition, MoveHandler moveHandler)
     {
-        // Move the selected piece
-        var newPositionIndex = Board.GetIndexOf(newPosition);
-
         // If there was opponent's piece, move opponent to home
         if (!(newPosition.IsVacant))
         {
@@ -130,5 +124,4 @@ internal class Kimble
     {
         PlayerInTurn = Players[(Array.IndexOf(Players, PlayerInTurn) + 1) % 4];
     }
-
 }
