@@ -96,22 +96,23 @@ internal class Kimble
     /// <param name="oldPosition"></param>
     /// <param name="diceNumber"></param>
     /// <returns>Has the player won</returns>
-    public bool Move(Position oldPosition, Position newPosition, MoveHandler handler)
+    public bool Move(Position oldPosition, Position newPosition, MoveHandler moveHandler)
     {
         // Move the selected piece
         var newPositionIndex = Board.GetIndexOf(newPosition);
 
         // If there was opponent's piece, move opponent to home
-        if (!(newPosition.IsVacant()))
+        if (!(newPosition.IsVacant))
         {
             Home home = Board.GetVacantHomePosition(newPosition.PlayerInPosition);
-            Player playerToMoved = newPosition.PlayerInPosition;
+            Player playerToMove = newPosition.PlayerInPosition;
+            
             newPosition.MovePlayerTo(home);
-            handler(playerToMoved, newPosition, home);
+            moveHandler(playerToMove, newPosition, home);
         }
 
-        oldPosition.MovePlayerTo(newPosition); // TODO: Can this fail??
-        handler(newPosition.PlayerInPosition, oldPosition, newPosition);
+        oldPosition.MovePlayerTo(newPosition); 
+        moveHandler(newPosition.PlayerInPosition, oldPosition, newPosition);
 
         // If all pieces are in safe, player in turn wins
         if (Board.Positions.Select(pos => pos).Where(pos => pos.PlayerInPosition == PlayerInTurn).All(pos => pos is Safe))

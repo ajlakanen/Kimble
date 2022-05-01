@@ -170,7 +170,7 @@ public class Board
         int thisPos = Array.IndexOf(Positions, safe);
         while (end > thisPos)
         {
-            if (Positions[end].IsVacant()) return true;
+            if (Positions[end].IsVacant) return true;
             end--;
         }
         return false;
@@ -182,7 +182,7 @@ public class Board
         int homePos = firstHomePos;
         do
         {
-            if (!(this[homePos].IsVacant())) homePos++;
+            if (!(this[homePos].IsVacant)) homePos++;
             else
             {
                 return this[homePos] as Home;
@@ -220,7 +220,7 @@ public class Board
 
     public Position[] OccupiedPositions()
     {
-        var occupied = Positions.Select(pos => pos).Where(pos => !pos.IsVacant());
+        var occupied = Positions.Select(pos => pos).Where(pos => !pos.IsVacant);
         return occupied.ToArray();
     }
 

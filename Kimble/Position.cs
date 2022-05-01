@@ -7,13 +7,13 @@ namespace Kimble;
 /// </summary>
 public class Position
 {
-    protected bool isVacant = true;
-
     /// <summary>
-    /// Piece that occupies the position. 
+    /// Is position vacant
     /// </summary>
+    public bool IsVacant { get; private set; } = true;
 
     private Player playerInPosition;
+
     /// <summary>
     /// Player that is currently in the position.
     /// </summary>
@@ -26,8 +26,8 @@ public class Position
         set
         {
             playerInPosition = value;
-            if (value == null) isVacant = true;
-            else isVacant = false;
+            if (value == null) IsVacant = true;
+            else IsVacant = false;
         }
     }
 
@@ -36,19 +36,6 @@ public class Position
     /// </summary>
     public Position()
     {
-    }
-
-    /// <summary>
-    /// Is position vacant. If not vacant, return also the piece in the position. 
-    /// </summary>
-    /// <returns></returns>
-    //public (bool isVacant, Player player) IsVacant()
-    //{
-    //    return isVacant ? (isVacant, null) : (isVacant, PlayerInPosition);
-    //}
-    public bool IsVacant()
-    {
-        return isVacant;
     }
 
     /// <summary>
