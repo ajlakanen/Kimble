@@ -114,7 +114,7 @@ internal class Kimble
         handler(newPosition.PlayerInPosition, oldPosition, newPosition);
 
         // If all pieces are in safe, player in turn wins
-        if (Board.Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(PlayerInTurn)).All(pos => pos is Safe))
+        if (Board.Positions.Select(pos => pos).Where(pos => pos.PlayerInPosition == PlayerInTurn).All(pos => pos is Safe))
         {
             GameOver = true;
             return true;

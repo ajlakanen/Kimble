@@ -52,18 +52,6 @@ public class Position
     }
 
     /// <summary>
-    /// Is position occupied by a player.
-    /// </summary>
-    /// <param name="player">Player</param>
-    /// <returns>Is occupied</returns>
-    public bool PositionOccupiedBy(Player player)
-    {
-        if (PlayerInPosition == null) return false;
-        else if (PlayerInPosition == player) return true;
-        else return false;
-    }
-
-    /// <summary>
     /// Move player from old position to new position.
     /// </summary>
     /// <param name="newPosition"></param>

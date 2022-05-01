@@ -93,14 +93,14 @@ public class Board
 
             // b. Is the piece already in last safe position, it cannot move and we won't add it to the list. 
             else if (movable is Safe safe && !LaterSafePositionExists(safe, player)) continue;
-            
+
             // c. Other positions have to be calculated.             
             else newPosition = CalculateNewPosition(player, diceNumber, movable);
 
             // Phase 2. 
             // We'll check if player's own piece is in the position.
             // If it is, player can not move there and we won't add it to the list. 
-            if (newPosition.PositionOccupiedBy(player)) continue;
+            if (newPosition.PlayerInPosition == player) continue;
 
             // After all this, we are ready to add a movable and its
             // new position to the tuples.
@@ -117,14 +117,14 @@ public class Board
         {
             movables = Positions
                 .Select(pos => pos)
-                .Where(pos => pos.PositionOccupiedBy(player))
+                .Where(pos => pos.PlayerInPosition == player)
                 .ToList();
         }
         else
         {
             movables = Positions
                 .Select(pos => pos)
-                .Where(pos => pos is not Home && pos.PositionOccupiedBy(player))
+                .Where(pos => pos is not Home && pos.PlayerInPosition == player)
                 .ToList();
         }
         return movables;
@@ -168,7 +168,7 @@ public class Board
     {
         int end = player.SafeEnd;
         int thisPos = Array.IndexOf(Positions, safe);
-        while(end > thisPos)
+        while (end > thisPos)
         {
             if (Positions[end].IsVacant()) return true;
             end--;
@@ -226,7 +226,7 @@ public class Board
 
     public string PrintPositions(Player player)
     {
-        return string.Join(", ", Positions.Select(pos => pos).Where(pos => pos.PositionOccupiedBy(player)).Select(pos => GetIndexOf(pos)));
+        return string.Join(", ", Positions.Select(pos => pos).Where(pos => pos.PlayerInPosition == player).Select(pos => GetIndexOf(pos)));
     }
 
 }
