@@ -35,13 +35,13 @@ internal class UI
     }
 
 
-    private Vector BoardToUIPosition2(HomeOrSafe position)
+    private Vector BoardToUIPosition2(IHomeOrSafe position)
     {
         Player player = position.OwnedBy;
         int homeStartsFrom = player.HomeStartsFrom;
         double startAngle;
         double angle;
-        var homesOrSafes = kimble.Board.Positions.Select<Position, HomeOrSafe>(x => x as HomeOrSafe).Where(x => x is HomeOrSafe s && s.OwnedBy == player).ToList();
+        var homesOrSafes = kimble.Board.Positions.Select<Position, IHomeOrSafe>(x => x as IHomeOrSafe).Where(x => x is IHomeOrSafe s && s.OwnedBy == player).ToList();
         int index = homesOrSafes.IndexOf(position);
         double distance;
         if (position is Safe)

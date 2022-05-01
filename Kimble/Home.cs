@@ -1,15 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Kimble;
 
-namespace Kimble;
-
-public class Home : Position, HomeOrSafe
+/// <summary>
+/// Home.
+/// </summary>
+public class Home : Position, IHomeOrSafe
 {
+    /// <summary>
+    /// Position owned by.
+    /// </summary>
     public Player OwnedBy { get; init; }
 
+    /// <summary>
+    /// Home.
+    /// </summary>
+    /// <param name="player">Player.</param>
     public Home(Player player)
     {
         OwnedBy = player;

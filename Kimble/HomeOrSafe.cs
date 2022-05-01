@@ -1,7 +1,12 @@
-﻿namespace Kimble
+﻿namespace Kimble;
+
+/// <summary>
+/// Home or safe position.
+/// </summary>
+internal interface IHomeOrSafe
 {
-    internal interface HomeOrSafe
-    {
-        public Player OwnedBy { get; init; }
-    }
+    /// <summary>
+    /// Position owned by.
+    /// </summary>
+    public Player OwnedBy { get; init; }
 }
