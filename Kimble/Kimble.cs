@@ -27,7 +27,7 @@ internal class Kimble
     /// <summary>
     /// Dice now. 
     /// </summary>
-    public int DiceNow { get; set; }
+    public int DiceNow { get; private set; }
 
     /// <summary>
     /// Pieces that are currently movable (oldPosition) and their new position counterparts. 
