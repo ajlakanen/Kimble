@@ -52,12 +52,12 @@ internal class Kimble
     /// </summary>
     public Kimble()
     {
-        Players = MakePlayers();
+        Players = CreatePlayers();
         PlayerInTurn = Players[0];
         Board = new Board(Players);
     }
 
-    private Player[] MakePlayers()
+    private Player[] CreatePlayers()
     {
         for (int i = 0; i < Rules.colorsAndStartingPositions.Length; i++)
         {
@@ -88,10 +88,11 @@ internal class Kimble
     }
 
     /// <summary>
-    /// 
+    /// Move piece
     /// </summary>
-    /// <param name="oldPosition"></param>
-    /// <param name="diceNumber"></param>
+    /// <param name="oldPosition">Old position</param>
+    /// <param name="newPosition">New position</param>
+    /// <param name="moveHandler">UI move handler</param>
     /// <returns>Has the player won</returns>
     public bool Move(Position oldPosition, Position newPosition, MoveHandler moveHandler)
     {
@@ -99,8 +100,7 @@ internal class Kimble
         if (!(newPosition.IsVacant))
         {
             Home home = Board.GetVacantHomePosition(newPosition.PlayerInPosition);
-            Player playerToMove = newPosition.PlayerInPosition;
-            
+            Player playerToMove = newPosition.PlayerInPosition;            
             newPosition.MovePlayerTo(home);
             moveHandler(playerToMove, newPosition, home);
         }
