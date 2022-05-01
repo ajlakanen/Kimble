@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace Kimble;
 
+/// <summary>
+/// Board.
+/// </summary>
 public class Board
 {
     /// <summary>

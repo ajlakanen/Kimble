@@ -5,6 +5,9 @@ using Jypeli;
 
 namespace Kimble;
 
+/// <summary>
+/// User interface.
+/// </summary>
 internal class UI
 {
     const int TotalPositions = Board.TotalNumberOfPositions;
@@ -22,7 +25,6 @@ internal class UI
     Label youCanMove;
     GameObject pointer;
 
-    // Dictionary<Color, List<(Position, GameObject)>> pieces;
     readonly Dictionary<Player, List<(Position position, GameObject gameObject)>> pieces;
     double uiInitialX;
     double uiInitialY;
@@ -33,7 +35,6 @@ internal class UI
         this.kimble = kimble;
         pieces = new();
     }
-
 
     private Vector BoardToUIPosition2(IHomeOrSafe position)
     {
