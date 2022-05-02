@@ -5,7 +5,7 @@ using System.Linq;
 namespace Kimble;
 
 /// <summary>
-/// Kimble main class.
+/// Kimble main logic class.
 /// </summary>
 internal class Kimble
 {

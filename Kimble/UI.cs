@@ -25,7 +25,7 @@ internal class UI
     Label youCanMove;
     GameObject pointer;
 
-    readonly Dictionary<Player, List<(Position position, GameObject gameObject)>> pieces;
+    private Dictionary<Player, List<(Position position, GameObject gameObject)>> pieces;
     double uiInitialX;
     double uiInitialY;
 
@@ -34,6 +34,22 @@ internal class UI
         this.game = game;
         this.kimble = kimble;
         pieces = new();
+        Dice dice = new Dice(game, 50, 50);
+
+        game.Mouse.ListenOn(dice, MouseButton.Left, ButtonState.Pressed, () =>
+        {
+            game.MessageDisplay.Add("Hep");
+            dice.Destroy();
+            //d = dice[3];
+        }, null);
+
+        game.Keyboard.Listen(Key.D, ButtonState.Pressed, () =>
+        {
+            Random r = new Random();
+            game.MessageDisplay.Add("Hep");
+            dice.Show(r.Next(1, 7));
+        }, null);
+
     }
 
     private Vector BoardToUIPosition2(IHomeOrSafe position)

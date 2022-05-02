@@ -64,7 +64,6 @@ public class KimbleGame : Game
             ui.UpdateLabels();
             MessageDisplay.Add($"Vuorossa nyt: {kimble.PlayerInTurn.Color}");
         });
-        // return kimble.PrintPositions(kimble.PlayerInTurn);
     }
 
     private InputWindow SelectAndMove(string s)
@@ -78,7 +77,6 @@ public class KimbleGame : Game
             Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
             MessageDisplay.Add($"Moved piece from position {selected}");
             kimble.Move(oldPos, newPos, ui.MovePiece);
-            //ui.MovePiece(kimble.PlayerInTurn, oldPos, newPos);
         };
         return iw;
     }
