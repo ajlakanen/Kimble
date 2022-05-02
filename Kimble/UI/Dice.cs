@@ -10,9 +10,9 @@ enum DicePart
 
 internal class Dice : GameObject
 {
-    Dictionary<int, DicePart[]> _figures;
-    Dictionary<DicePart, GameObject> _gameObjects;
-    private double _dotsize;
+    readonly Dictionary<int, DicePart[]> _figures;
+    readonly Dictionary<DicePart, GameObject> _gameObjects;
+    private readonly double _dotsize;
 
     public Dice(Game game, double width, double height) : base(width, height)
     {
@@ -27,7 +27,7 @@ internal class Dice : GameObject
             { 6, new DicePart[] {DicePart.NW, DicePart.NE, DicePart.SW, DicePart.SE, DicePart.W, DicePart.E } },
         };
 
-        GameObject _baseObject = new GameObject(width, height);
+        GameObject _baseObject = new(width, height);
         game.Add(_baseObject);
 
         _gameObjects = new Dictionary<DicePart, GameObject>()
