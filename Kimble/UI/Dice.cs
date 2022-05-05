@@ -65,14 +65,18 @@ internal class Dice : GameObject
 
     public int Throw()
     {
-        int animStepNow = 0;
-        int[] animNumbers;
-
-        int Next() { return animNumbers[animStepNow++]; }
-
-        int value = new Random().Next(1, 7);
+        // We need this construct for the animation
+        // because the lambda (below) would capture the
+        // i value of the loop, thus, we can not use 
+        // i inside lambda. 
         const int AnimSteps = 5;
+        int[] animNumbers;
         animNumbers = new int[AnimSteps];
+        int animStepNow = 0;
+
+        // This is the actual returned number.
+        int value = new Random().Next(1, 7);
+
         for (int j = 0; j < animNumbers.Length; j++)
         {
             int n;
@@ -99,15 +103,15 @@ internal class Dice : GameObject
             Show(value);
             DiceAnimationComplete?.Invoke();
         });
+
         return value;
+        int Next() { return animNumbers[animStepNow++]; }
     }
 
     public void Show(int value)
     {
         foreach (var go in _figures[value])
-        {
             _gameObjects[go].IsVisible = true;
-        }
     }
 
     private GameObject NE() => new(_dotsize, _dotsize, Shape.Circle)
@@ -133,10 +137,12 @@ internal class Dice : GameObject
     {
         Position = new Vector(Position.X + Width / 4, Position.Y - Width / 4)
     };
+
     private GameObject SW() => new(_dotsize, _dotsize, Shape.Circle)
     {
         Position = new Vector(Position.X - Width / 4, Position.Y - Width / 4)
     };
+
     private GameObject Center() => new(_dotsize, _dotsize, Shape.Circle)
     {
         Position = new Vector(Position.X, Position.Y)
