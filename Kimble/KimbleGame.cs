@@ -17,6 +17,12 @@ public class KimbleGame : Game
         ui.CreateLabels(-800, 0);
         ui.CreateBoardLayout();
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
+        Listener l = Mouse.ListenOn(ui.Dice, MouseButton.Left, ButtonState.Pressed, () =>
+        {
+            ui.Dice.Throw();
+            Mouse.Disable(MouseButton.Left);
+            ui.Dice.DiceAnimationComplete += () => { Mouse.Enable(MouseButton.Left); };
+        }, null);
         Keyboard.Listen(Key.Space, ButtonState.Pressed, ThrowDice, null);
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
     }

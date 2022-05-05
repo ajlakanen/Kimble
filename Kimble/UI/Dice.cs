@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Jypeli;
 
 namespace Kimble;
@@ -14,7 +16,7 @@ internal class Dice : GameObject
     readonly Dictionary<DicePart, GameObject> _gameObjects;
     private readonly double _dotsize;
 
-    public Dice(Game game, double width, double height) : base(width, height)
+    public Dice(double width, double height) : base(width, height)
     {
         _dotsize = width / 5;
         _figures = new Dictionary<int, DicePart[]>()
@@ -28,7 +30,6 @@ internal class Dice : GameObject
         };
 
         GameObject _baseObject = new(width, height);
-        game.Add(_baseObject);
 
         _gameObjects = new Dictionary<DicePart, GameObject>()
         {
@@ -44,7 +45,7 @@ internal class Dice : GameObject
         foreach (var item in _gameObjects.Values)
         {
             item.Color = Jypeli.Color.Black;
-            game.Add(item);
+            this.Add(item);
         }
     }
 
@@ -56,10 +57,56 @@ internal class Dice : GameObject
         }
     }
 
+    /// <summary>
+    /// Dice throwing animation is complete.
+    /// </summary>
+    public Action DiceAnimationComplete;
+
+
+    public int Throw()
+    {
+        int animStepNow = 0;
+        int[] animNumbers;
+
+        int Next()
+        {
+            return animNumbers[animStepNow++];
+        }
+
+        int value = new Random().Next(1, 7);
+        const int AnimSteps = 5;
+        animNumbers = new int[AnimSteps];
+        for (int j = 0; j < animNumbers.Length; j++)
+        {
+            int n;
+            do
+            {
+                n = new Random().Next(1, 7);
+                animNumbers[j] = n;
+            } while (!animNumbers.Take(j).All(x => x != n) || n == value);
+
+        }
+        for (int i = 1; i <= AnimSteps; i++)
+        {
+            Timer.SingleShot(0.1 * i, () =>
+            {
+                Hide();
+                Game.MessageDisplay.Add(""+animNumbers[animStepNow]);
+                Show(Next());
+            });
+        }
+        Timer.SingleShot(0.1 * (AnimSteps + 1), () =>
+        {
+            Hide();
+            Show(value);
+            DiceAnimationComplete?.Invoke();
+        });
+        return value;
+    }
+
     public void Show(int value)
     {
-        Hide();
-        foreach(var go in _figures[value])
+        foreach (var go in _figures[value])
         {
             _gameObjects[go].IsVisible = true;
         }
