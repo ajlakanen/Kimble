@@ -68,10 +68,7 @@ internal class Dice : GameObject
         int animStepNow = 0;
         int[] animNumbers;
 
-        int Next()
-        {
-            return animNumbers[animStepNow++];
-        }
+        int Next() { return animNumbers[animStepNow++]; }
 
         int value = new Random().Next(1, 7);
         const int AnimSteps = 5;
@@ -86,15 +83,16 @@ internal class Dice : GameObject
             } while (!animNumbers.Take(j).All(x => x != n) || n == value);
 
         }
+
         for (int i = 1; i <= AnimSteps; i++)
         {
             Timer.SingleShot(0.1 * i, () =>
             {
                 Hide();
-                Game.MessageDisplay.Add(""+animNumbers[animStepNow]);
                 Show(Next());
             });
         }
+
         Timer.SingleShot(0.1 * (AnimSteps + 1), () =>
         {
             Hide();
