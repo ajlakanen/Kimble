@@ -10,6 +10,9 @@ enum DicePart
     NE, E, SE, SW, W, NW, Center
 }
 
+/// <summary>
+/// Dice
+/// </summary>
 internal class Dice : GameObject
 {
     readonly Dictionary<int, DicePart[]> _figures;
@@ -29,7 +32,7 @@ internal class Dice : GameObject
             { 6, new DicePart[] {DicePart.NW, DicePart.NE, DicePart.SW, DicePart.SE, DicePart.W, DicePart.E } },
         };
 
-        GameObject _baseObject = new(width, height);
+        // GameObject _baseObject = new(width, height);
 
         _gameObjects = new Dictionary<DicePart, GameObject>()
         {
@@ -61,21 +64,20 @@ internal class Dice : GameObject
     /// Dice throwing animation is complete.
     /// </summary>
     public Action DiceAnimationComplete;
-
-
     public int Throw()
     {
+        // This is the actual returned number.
+        int value = new Random().Next(1, 7);
+
         // We need this construct for the animation
         // because the lambda (below) would capture the
         // i value of the loop, thus, we can not use 
         // i inside lambda. 
         const int AnimSteps = 5;
         int[] animNumbers;
-        animNumbers = new int[AnimSteps];
         int animStepNow = 0;
-
-        // This is the actual returned number.
-        int value = new Random().Next(1, 7);
+        this.Color = Jypeli.Color.LightGray;
+        animNumbers = new int[AnimSteps];
 
         for (int j = 0; j < animNumbers.Length; j++)
         {
@@ -101,6 +103,7 @@ internal class Dice : GameObject
         {
             Hide();
             Show(value);
+            this.Color = Jypeli.Color.White;
             DiceAnimationComplete?.Invoke();
         });
 

@@ -27,7 +27,7 @@ internal class Kimble
     /// <summary>
     /// Dice now. 
     /// </summary>
-    public int DiceNow { get; private set; }
+    public int DiceNow { get; set; }
 
     /// <summary>
     /// Pieces that are currently movable (oldPosition) and their new position counterparts. 
@@ -79,10 +79,10 @@ internal class Kimble
     /// Throw dice, return the pieces that can move. 
     /// </summary>
     /// <returns>Movable pieces.</returns>
-    public List<(Position, Position)> ThrowDice()
+    public List<(Position, Position)> GetPiecesThatCanMove()
     {
-        Random random = new();
-        DiceNow = random.Next(1, 7);
+        //Random random = new();
+        //DiceNow = random.Next(1, 7);
         PiecesThatCanMove = Board.MovablePositions(PlayerInTurn, DiceNow);
         return PiecesThatCanMove;
     }

@@ -10,6 +10,11 @@ namespace Kimble;
 /// </summary>
 internal class UI
 {
+    /// <summary>
+    /// Dice
+    /// </summary>
+    public Dice Dice { get; set; }
+
     const int TotalPositions = Board.TotalNumberOfPositions;
     const int TotalBasicPositions = Board.TotalNumberOfPositions - 4 * (4 + 4);
     const double BasicAngleAdd = (Math.PI * 2) / (double)TotalBasicPositions;
@@ -20,15 +25,12 @@ internal class UI
 
     readonly Kimble kimble;
     readonly Game game;
-    Dictionary<Player, Label> labels;
-    Label dice;
-    Label youCanMove;
-    GameObject pointer;
-    public Dice Dice { get; set; }
-
+    private Dictionary<Player, Label> labels;    
+    private GameObject pointer;
     private Dictionary<Player, List<(Position position, GameObject gameObject)>> pieces;
-    double uiInitialX;
-    double uiInitialY;
+
+    private Label diceLabel; // TODO: This will be deleted
+    Label youCanMove; // TODO: This will be deleted
 
     public UI(Game game, Kimble kimble)
     {
@@ -37,14 +39,8 @@ internal class UI
         pieces = new();
         Dice = new Dice(50, 50);
         game.Add(Dice);
-
-        game.Keyboard.Listen(Key.D, ButtonState.Pressed, () =>
-        {
-            Random r = new Random();
-            game.MessageDisplay.Add("Hep");
-            Dice.Throw();
-        }, null);
-
+        CreateLabels(-800, 0);
+        CreateBoardLayout();
     }
 
     private Vector BoardToUIPosition2(IHomeOrSafe position)
@@ -138,6 +134,11 @@ internal class UI
         for (int i = 0; i < kimble.Players.Length; i++)
         {
             int homeStartsFrom = kimble.Players[i].HomeStartsFrom;
+            Label playerLabel = new(kimble.Players[i].Color + "");
+            Vector v = BoardToUIPosition(kimble.Board.Positions[homeStartsFrom + 3] as Home);
+            v = Vector.FromLengthAndAngle(v.Magnitude * 1.2, v.Angle);
+            playerLabel.Position = v;
+            game.Add(playerLabel);
 
             for (int j = 0; j < 4; j++)
             {
@@ -215,11 +216,9 @@ internal class UI
 
     public void CreateLabels(double x, double y)
     {
-        uiInitialX = x;
-        uiInitialY = y;
         Vector bottom = CreatePlayerLabels(x, y);
         CreateDiceLabel(bottom.X, bottom.Y);
-        CreateYouCanMoveLabel(300, dice.Y);
+        CreateYouCanMoveLabel(300, diceLabel.Y);
         CreatePointer(x, y);
     }
 
@@ -227,7 +226,7 @@ internal class UI
     {
         youCanMove = new Label
         {
-            Left = dice.Right + 150,
+            Left = diceLabel.Right + 150,
             Y = y,
             Color = Jypeli.Color.Black,
             TextColor = Jypeli.Color.White,
@@ -238,7 +237,7 @@ internal class UI
 
     private void CreatePointer(double x, double y)
     {
-        pointer = new GameObject(20, 80, Shape.Triangle)
+        pointer = new GameObject(30, 75, Shape.Rectangle)
         {
             Angle = Angle.FromRadians(-Math.PI / 2)
         };
@@ -249,7 +248,7 @@ internal class UI
 
     void CreateDiceLabel(double x, double y)
     {
-        dice = new Label
+        diceLabel = new Label
         {
             Left = x,
             Top = y,
@@ -257,7 +256,7 @@ internal class UI
             TextColor = Jypeli.Color.White,
             Text = "Dice shows:  "
         };
-        game.Add(dice);
+        game.Add(diceLabel);
     }
 
     Vector CreatePlayerLabels(double x, double y)
@@ -290,20 +289,53 @@ internal class UI
         return new Vector(x, y);
     }
 
+    public Action PointerAnimationComplete;
+
+
     internal void UpdateLabels()
     {
         foreach (var label in labels)
         {
             label.Value.Text = $"{label.Key.Color.Stringify()} ({label.Key.SafeEnd}): {kimble.Board.PrintPositions(label.Key)}";
         }
+    }
 
-        pointer.Y = uiInitialY - (Array.IndexOf(kimble.Players, kimble.PlayerInTurn) * dice.Height * 1.5) - 10;
-        pointer.X = uiInitialX - pointer.Height;
+    public void UpdatePointer()
+    {
+        Vector v = BoardToUIPosition(kimble.Board.Positions[kimble.PlayerInTurn.HomeStartsFrom + 3] as Home);
+        v = Vector.FromLengthAndAngle(v.Magnitude * 1.2, v.Angle);
+        pointer.MoveTo(v, 1000);
+
+        Timer.SingleShot(0.1, () =>
+        {
+            const int AnimSteps = 3;
+            for (int i = 1; i <= AnimSteps; i++)
+            {
+                Timer.SingleShot(i + 0.01, () =>
+                  {
+                      pointer.Color = Jypeli.Color.White;
+                      for (int j = 1; j <= 4; j++)
+                      {
+                          Timer.SingleShot(0.1 * j, () =>
+                          {
+                              pointer.Color = Jypeli.Color.Darker(pointer.Color, 25); ;
+                          });
+                      }
+                      for (int j = 5; j <= 9; j++)
+                      {
+                          Timer.SingleShot(0.1 * j, () =>
+                          {
+                              pointer.Color = Jypeli.Color.Lighter(pointer.Color, 25); ;
+                          });
+                      }
+                  });
+            }
+        });
     }
 
     public void UpdateDiceLabel(string s)
     {
-        dice.Text = s;
+        diceLabel.Text = s;
     }
 
     internal void UpdateMovables(string s)

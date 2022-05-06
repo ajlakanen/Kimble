@@ -14,23 +14,24 @@ public class KimbleGame : Game
         CenterWindow();
         kimble = new();
         ui = new(this, kimble);
-        ui.CreateLabels(-800, 0);
-        ui.CreateBoardLayout();
+        // ui.CreateLabels(-800, 0);
+        //ui.CreateBoardLayout();
+        ui.Dice.DiceAnimationComplete += () => { Mouse.Enable(MouseButton.Left); };
+        ui.Dice.DiceAnimationComplete += () => ThrowDice();
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
         Listener l = Mouse.ListenOn(ui.Dice, MouseButton.Left, ButtonState.Pressed, () =>
         {
-            ui.Dice.Throw();
+            kimble.DiceNow = ui.Dice.Throw();
             Mouse.Disable(MouseButton.Left);
-            ui.Dice.DiceAnimationComplete += () => { Mouse.Enable(MouseButton.Left); };
         }, null);
-        Keyboard.Listen(Key.Space, ButtonState.Pressed, ThrowDice, null);
+        // Keyboard.Listen(Key.Space, ButtonState.Pressed, ThrowDice, null);
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
     }
 
     private void ThrowDice()
     {
         string movablesStr = "";
-        var piecesThatCanMove = kimble.ThrowDice();
+        var piecesThatCanMove = kimble.GetPiecesThatCanMove();
         MessageDisplay.Add($"{kimble.PlayerInTurn.Color} heitti: {kimble.DiceNow}");
         kimble.PiecesThatCanMove.ForEach(p => movablesStr += kimble.Board.GetIndexOf(p.oldPosition) + ", ");
         ui.UpdateDiceLabel($"Dice shows: {kimble.DiceNow}");
@@ -64,9 +65,10 @@ public class KimbleGame : Game
         kimble.NextPlayer();
         ui.UpdateMovables("");
         ui.UpdateDiceLabel("");
-        MessageDisplay.Add($"Vuoro vaihtuu.");
         Timer.SingleShot(1.0, () =>
-        {
+        {       
+            ui.UpdatePointer();
+
             ui.UpdateLabels();
             MessageDisplay.Add($"Vuorossa nyt: {kimble.PlayerInTurn.Color}");
         });
