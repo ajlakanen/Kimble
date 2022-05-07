@@ -25,7 +25,7 @@ internal class UI
 
     readonly Kimble kimble;
     readonly Game game;
-    private Dictionary<Player, Label> labels;    
+    private Dictionary<Player, Label> labels;
     private GameObject pointer;
     private Dictionary<Player, List<(Position position, GameObject gameObject)>> pieces;
 
@@ -295,9 +295,7 @@ internal class UI
     internal void UpdateLabels()
     {
         foreach (var label in labels)
-        {
             label.Value.Text = $"{label.Key.Color.Stringify()} ({label.Key.SafeEnd}): {kimble.Board.PrintPositions(label.Key)}";
-        }
     }
 
     public void UpdatePointer()
@@ -315,19 +313,10 @@ internal class UI
                   {
                       pointer.Color = Jypeli.Color.White;
                       for (int j = 1; j <= 4; j++)
-                      {
-                          Timer.SingleShot(0.1 * j, () =>
-                          {
-                              pointer.Color = Jypeli.Color.Darker(pointer.Color, 25); ;
-                          });
-                      }
+                          Timer.SingleShot(0.1 * j, () => { pointer.Color = Jypeli.Color.Darker(pointer.Color, 25); });
+
                       for (int j = 5; j <= 9; j++)
-                      {
-                          Timer.SingleShot(0.1 * j, () =>
-                          {
-                              pointer.Color = Jypeli.Color.Lighter(pointer.Color, 25); ;
-                          });
-                      }
+                          Timer.SingleShot(0.1 * j, () => { pointer.Color = Jypeli.Color.Lighter(pointer.Color, 25); });
                   });
             }
         });

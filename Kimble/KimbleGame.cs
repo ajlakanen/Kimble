@@ -14,8 +14,6 @@ public class KimbleGame : Game
         CenterWindow();
         kimble = new();
         ui = new(this, kimble);
-        // ui.CreateLabels(-800, 0);
-        //ui.CreateBoardLayout();
         ui.Dice.DiceAnimationComplete += () => { Mouse.Enable(MouseButton.Left); };
         ui.Dice.DiceAnimationComplete += () => ThrowDice();
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
@@ -24,7 +22,6 @@ public class KimbleGame : Game
             kimble.DiceNow = ui.Dice.Throw();
             Mouse.Disable(MouseButton.Left);
         }, null);
-        // Keyboard.Listen(Key.Space, ButtonState.Pressed, ThrowDice, null);
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
     }
 
