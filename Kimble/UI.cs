@@ -295,7 +295,6 @@ internal class UI
 
     public Action PointerAnimationComplete;
 
-
     internal void UpdateLabels()
     {
         foreach (var label in labels)
@@ -306,23 +305,12 @@ internal class UI
     {
         Vector v = BoardToUIPosition(kimble.Board.Positions[kimble.PlayerInTurn.HomeStartsFrom + 3] as Home);
         v = Vector.FromLengthAndAngle(v.Magnitude * 1.2, v.Angle);
+        pointer.Color = Jypeli.Color.White;
         pointer.MoveTo(v, 1000);
-
-        Timer.SingleShot(0.1, () =>
+        
+        Timer.SingleShot(0.5, () =>
         {
-            const int AnimSteps = 3;
-            for (int i = 1; i <= AnimSteps; i++)
-            {
-                Timer.SingleShot(i + 0.01, () =>
-                  {
-                      pointer.Color = Jypeli.Color.White;
-                      for (int j = 1; j <= 4; j++)
-                          Timer.SingleShot(0.1 * j, () => { pointer.Color = Jypeli.Color.Darker(pointer.Color, 25); });
-
-                      for (int j = 5; j <= 9; j++)
-                          Timer.SingleShot(0.1 * j, () => { pointer.Color = Jypeli.Color.Lighter(pointer.Color, 25); });
-                  });
-            }
+             pointer.Color = kimble.PlayerInTurn.Color.ToJypeliColor();
         });
     }
 
@@ -353,7 +341,7 @@ internal class UI
             };
             t.Start();
 
-            timerStopHandler += (o, e) =>{ t.Stop(); };
+            timerStopHandler += (o, e) => { t.Stop(); };
         }
         return timerStopHandler;
     }
@@ -362,5 +350,10 @@ internal class UI
     {
         if (s.Length == 0) youCanMove.Text = "";
         else youCanMove.Text = s;
+    }
+
+    public Position GetPositionOf(GameObject g)
+    {
+        return pieces[kimble.PlayerInTurn].Select(x => x).Where(x => x.gameObject == g).First().position;
     }
 }

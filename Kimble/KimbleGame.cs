@@ -35,26 +35,34 @@ public class KimbleGame : Game
         kimble.PiecesThatCanMove.ForEach(p => movablesStr += kimble.Board.GetIndexOf(p.oldPosition) + ", ");
         ui.UpdateDiceLabel($"Dice shows: {kimble.DiceNow}");
         ui.UpdateLabels();
-        //GameObject[] movables = ui.FlashMovables(MovablePieceSelected);
-        GameObject[] piecesThatCanMove = ui.GetPiecesThatCanMove();
-        MovablePieceSelected = ui.FlashMovables(MovablePieceSelected);
 
-        foreach (GameObject item in piecesThatCanMove)
-        {
-            Mouse.ListenOn(item, MouseButton.Left, ButtonState.Pressed, () =>
-            {
-                MessageDisplay.Add("Moi");
-                MovablePieceSelected?.Invoke(this, EventArgs.Empty);
-            }, null);
-        }
+        GameObject[] piecesThatCanMove_GO = ui.GetPiecesThatCanMove();
+        MovablePieceSelected = ui.FlashMovables(MovablePieceSelected);
 
         if (kimble.PiecesThatCanMove.Count != 0)
         {
             ui.UpdateMovables($"You can move: {movablesStr}");
-            /*
-            InputWindow iw = SelectAndMove(movablesStr);
-            iw.Closed += delegate
+            foreach (GameObject item in piecesThatCanMove_GO)
             {
+                Mouse.ListenOn(item, MouseButton.Left, ButtonState.Pressed, () =>
+                {
+                    // MessageDisplay.Add("Moi");
+                    MoveSelected(item);
+                    MovablePieceSelected?.Invoke(this, EventArgs.Empty);
+                }, null);
+            }
+            /**/
+            // InputWindow iw = SelectAndMove(movablesStr);
+            /*                
+            iw.Closed += delegate
+            */
+            // MovablePieceSelected += (o, e) =>
+            void MoveSelected(GameObject item)
+            {
+                Position oldPos = ui.GetPositionOf(item);
+                Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
+                MessageDisplay.Add($"Moved piece from position {Array.IndexOf(kimble.Board.Positions, oldPos)}");
+                kimble.Move(oldPos, newPos, ui.MovePiece);
                 ui.UpdateLabels();
                 ui.UpdateMovables("");
                 if (kimble.DiceNow == 6)
@@ -65,13 +73,12 @@ public class KimbleGame : Game
                 }
                 else NewTurn();
             };
-            */
         }
         else
         {
             ui.UpdateMovables("You can not move.");
             NewTurn();
-        }        
+        }
     }
 
     private void NewTurn()
@@ -80,9 +87,8 @@ public class KimbleGame : Game
         ui.UpdateMovables("");
         ui.UpdateDiceLabel("");
         Timer.SingleShot(1.0, () =>
-        {       
+        {
             ui.UpdatePointer();
-
             ui.UpdateLabels();
             MessageDisplay.Add($"Vuorossa nyt: {kimble.PlayerInTurn.Color}");
         });

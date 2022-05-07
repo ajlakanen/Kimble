@@ -54,8 +54,8 @@ internal class Dice : GameObject
 
     public void Hide()
     {
-        foreach (var go in _eyes.Values)
-            go.IsVisible = false;
+        foreach (var eye in _eyes.Values)
+            eye.IsVisible = false;
     }
 
     /// <summary>
