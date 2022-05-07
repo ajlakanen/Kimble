@@ -5,7 +5,7 @@ using Jypeli;
 
 namespace Kimble;
 
-enum DicePart
+enum EyeLocation
 {
     NE, E, SE, SW, W, NW, Center
 }
@@ -15,55 +15,58 @@ enum DicePart
 /// </summary>
 internal class Dice : GameObject
 {
-    readonly Dictionary<int, DicePart[]> _figures;
-    readonly Dictionary<DicePart, GameObject> _gameObjects;
+    readonly Dictionary<int, EyeLocation[]> _numbers;
+    readonly Dictionary<EyeLocation, GameObject> _eyes;
     private readonly double _dotsize;
 
     public Dice(double width, double height) : base(width, height)
     {
         _dotsize = width / 5;
-        _figures = new Dictionary<int, DicePart[]>()
+        _numbers = new Dictionary<int, EyeLocation[]>()
         {
-            { 1, new DicePart[] {DicePart.Center} },
-            { 2, new DicePart[] {DicePart.NW, DicePart.SE} },
-            { 3, new DicePart[] {DicePart.NW, DicePart.Center, DicePart.SE} },
-            { 4, new DicePart[] {DicePart.NW, DicePart.NE, DicePart.SW, DicePart.SE} },
-            { 5, new DicePart[] {DicePart.NW, DicePart.NE, DicePart.Center, DicePart.SW, DicePart.SE} },
-            { 6, new DicePart[] {DicePart.NW, DicePart.NE, DicePart.SW, DicePart.SE, DicePart.W, DicePart.E } },
+            { 1, new EyeLocation[] {EyeLocation.Center} },
+            { 2, new EyeLocation[] {EyeLocation.NW, EyeLocation.SE} },
+            { 3, new EyeLocation[] {EyeLocation.NW, EyeLocation.Center, EyeLocation.SE} },
+            { 4, new EyeLocation[] {EyeLocation.NW, EyeLocation.NE, EyeLocation.SW, EyeLocation.SE} },
+            { 5, new EyeLocation[] {EyeLocation.NW, EyeLocation.NE, EyeLocation.Center, EyeLocation.SW, EyeLocation.SE} },
+            { 6, new EyeLocation[] {EyeLocation.NW, EyeLocation.NE, EyeLocation.SW, EyeLocation.SE, EyeLocation.W, EyeLocation.E } },
         };
 
         // GameObject _baseObject = new(width, height);
 
-        _gameObjects = new Dictionary<DicePart, GameObject>()
+        _eyes = new Dictionary<EyeLocation, GameObject>()
         {
-            {DicePart.NW, NW()},
-            {DicePart.NE, NE()},
-            {DicePart.SW, SW()},
-            {DicePart.SE, SE()},
-            {DicePart.W, W()},
-            {DicePart.E, E()},
-            {DicePart.Center, Center()}
+            {EyeLocation.NW, NW()},
+            {EyeLocation.NE, NE()},
+            {EyeLocation.SW, SW()},
+            {EyeLocation.SE, SE()},
+            {EyeLocation.W, W()},
+            {EyeLocation.E, E()},
+            {EyeLocation.Center, Center()}
         };
 
-        foreach (var item in _gameObjects.Values)
+        foreach (var eye in _eyes.Values)
         {
-            item.Color = Jypeli.Color.Black;
-            this.Add(item);
+            eye.Color = Jypeli.Color.Black;
+            this.Add(eye);
         }
     }
 
     public void Hide()
     {
-        foreach (var go in _gameObjects.Values)
-        {
+        foreach (var go in _eyes.Values)
             go.IsVisible = false;
-        }
     }
 
     /// <summary>
     /// Dice throwing animation is complete.
     /// </summary>
     public Action DiceAnimationComplete;
+
+    /// <summary>
+    /// Throw dice. 
+    /// </summary>
+    /// <returns>Number.</returns>
     public int Throw()
     {
         // This is the actual returned number.
@@ -113,8 +116,8 @@ internal class Dice : GameObject
 
     public void Show(int value)
     {
-        foreach (var go in _figures[value])
-            _gameObjects[go].IsVisible = true;
+        foreach (var go in _numbers[value])
+            _eyes[go].IsVisible = true;
     }
 
     private GameObject NE() => new(_dotsize, _dotsize, Shape.Circle)

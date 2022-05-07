@@ -37,7 +37,7 @@ internal class UI
         this.game = game;
         this.kimble = kimble;
         pieces = new();
-        Dice = new Dice(50, 50);
+        Dice = new Dice(100, 100);
         game.Add(Dice);
         CreateLabels(-800, 0);
         CreateBoardLayout();
@@ -90,6 +90,14 @@ internal class UI
         return posUI;
     }
 
+    private Vector BoardToUIPosition(Position position)
+    {
+        var basicPositions = kimble.Board.Positions.Select(pos => pos).Where(pos => pos is not Home && pos is not Safe).ToList();
+        int index = basicPositions.IndexOf(position);
+        Vector posUI = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(StartAngle - index * BasicAngleAdd));
+        return posUI;
+    }
+
     internal void MovePiece(Player player, Position oldPosition, Position newPosition)
     {
         var list = pieces[player];
@@ -108,13 +116,7 @@ internal class UI
         return position;
     }
 
-    private Vector BoardToUIPosition(Position position)
-    {
-        var basicPositions = kimble.Board.Positions.Select(pos => pos).Where(pos => pos is not Home && pos is not Safe).ToList();
-        int index = basicPositions.IndexOf(position);
-        Vector posUI = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(StartAngle - index * BasicAngleAdd));
-        return posUI;
-    }
+
 
     internal void CreateBoardLayout()
     {
@@ -151,6 +153,7 @@ internal class UI
                     Color = p.Color.ToJypeliColor(),
                     Position = position
                 };
+                /* DEBUG: 
                 game.Mouse.ListenOn(piece, MouseButton.Left, ButtonState.Pressed, () =>
                 {
                     Position piecePos = GetCurrentPosition(p, piece);
@@ -165,6 +168,7 @@ internal class UI
                         // MovePiece(p, piecePos, newPos);
                     };
                 }, null);
+                */
                 game.Add(piece);
                 if (pieces.ContainsKey(p))
                 {
@@ -325,6 +329,33 @@ internal class UI
     public void UpdateDiceLabel(string s)
     {
         diceLabel.Text = s;
+    }
+
+    public GameObject[] GetPiecesThatCanMove()
+    {
+        List<Position> positionsToMove = kimble.PiecesThatCanMove.Select(x => x.oldPosition).ToList();
+        GameObject[] piecesToMove = pieces[kimble.PlayerInTurn].Select(x => x).Where(x => positionsToMove.Any(p => p == x.position)).Select(x => x.gameObject).ToArray();
+        return piecesToMove;
+    }
+
+    public EventHandler FlashMovables(EventHandler timerStopHandler)
+    {
+        GameObject[] piecesToMove = GetPiecesThatCanMove();
+
+        foreach (var piece in piecesToMove)
+        {
+            Timer t = new Timer();
+            t.Interval = 0.5;
+            t.Timeout += () =>
+            {
+                if (piece.Color == Jypeli.Color.Black) piece.Color = kimble.PlayerInTurn.Color.ToJypeliColor();
+                else piece.Color = Jypeli.Color.Black;
+            };
+            t.Start();
+
+            timerStopHandler += (o, e) =>{ t.Stop(); };
+        }
+        return timerStopHandler;
     }
 
     internal void UpdateMovables(string s)

@@ -25,17 +25,33 @@ public class KimbleGame : Game
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
     }
 
+    public event EventHandler MovablePieceSelected;
+
     private void ThrowDice()
     {
         string movablesStr = "";
-        var piecesThatCanMove = kimble.GetPiecesThatCanMove();
+        var positionsThatCanMove = kimble.GetPositionsThatCanMove();
         MessageDisplay.Add($"{kimble.PlayerInTurn.Color} heitti: {kimble.DiceNow}");
         kimble.PiecesThatCanMove.ForEach(p => movablesStr += kimble.Board.GetIndexOf(p.oldPosition) + ", ");
         ui.UpdateDiceLabel($"Dice shows: {kimble.DiceNow}");
         ui.UpdateLabels();
+        //GameObject[] movables = ui.FlashMovables(MovablePieceSelected);
+        GameObject[] piecesThatCanMove = ui.GetPiecesThatCanMove();
+        MovablePieceSelected = ui.FlashMovables(MovablePieceSelected);
+
+        foreach (GameObject item in piecesThatCanMove)
+        {
+            Mouse.ListenOn(item, MouseButton.Left, ButtonState.Pressed, () =>
+            {
+                MessageDisplay.Add("Moi");
+                MovablePieceSelected?.Invoke(this, EventArgs.Empty);
+            }, null);
+        }
+
         if (kimble.PiecesThatCanMove.Count != 0)
         {
             ui.UpdateMovables($"You can move: {movablesStr}");
+            /*
             InputWindow iw = SelectAndMove(movablesStr);
             iw.Closed += delegate
             {
@@ -49,6 +65,7 @@ public class KimbleGame : Game
                 }
                 else NewTurn();
             };
+            */
         }
         else
         {

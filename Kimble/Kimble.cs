@@ -79,7 +79,7 @@ internal class Kimble
     /// Throw dice, return the pieces that can move. 
     /// </summary>
     /// <returns>Movable pieces.</returns>
-    public List<(Position, Position)> GetPiecesThatCanMove()
+    public List<(Position, Position)> GetPositionsThatCanMove()
     {
         //Random random = new();
         //DiceNow = random.Next(1, 7);
