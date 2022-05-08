@@ -35,7 +35,7 @@ internal class UI
         pieces = new();
         Dice = new Dice(100, 100);
         game.Add(Dice);
-        CreateLabels(-800, 0);
+        CreatePointer(-800, 0);
         CreateBoardLayout();
     }
 
@@ -214,20 +214,16 @@ internal class UI
         game.Add(background, -2);
     }
 
-    public void CreateLabels(double x, double y)
-    {
-        CreatePointer(x, y);
-    }
-
-
     private void CreatePointer(double x, double y)
     {
+        Vector v = BoardToUIPosition(kimble.Board.Positions[kimble.PlayerInTurn.HomeStartsFrom + 3] as Home);
+        v = Vector.FromLengthAndAngle(v.Magnitude * 1.2, v.Angle);
         pointer = new GameObject(30, 75, Shape.Rectangle)
         {
-            Angle = Angle.FromRadians(-Math.PI / 2)
+            Angle = Angle.FromRadians(-Math.PI / 2),
+            Position = v,
+            Color = kimble.Players[0].Color.ToJypeliColor()
         };
-        pointer.X = x - pointer.Height;
-        pointer.Y = y - 10;
         game.Add(pointer);
     }
 
@@ -277,5 +273,24 @@ internal class UI
     public Position GetPositionOf(GameObject g)
     {
         return pieces[kimble.PlayerInTurn].Select(x => x).Where(x => x.gameObject == g).First().position;
+    }
+
+    /// <summary>
+    /// Moves an object one "stop" around the arc.
+    /// </summary>
+    public void MoveAlongArc(GameObject g)
+    {
+        double distance = Math.PI / 20;
+        Timer t = new Timer();
+        t.Interval = 0.01;
+        int speed = 4;
+        int times = (int)(1 / t.Interval) / speed;
+        t.Timeout += () => {
+            double angle = Math.Atan2(g.Y, g.X);
+            double angleToAdd = distance * t.Interval * speed;
+            angle += angleToAdd;
+            g.Position = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(angle));
+        };
+        t.Start(times);
     }
 }
