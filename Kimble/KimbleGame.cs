@@ -14,61 +14,56 @@ public class KimbleGame : Game
         CenterWindow();
         kimble = new();
         ui = new(this, kimble);
-        ui.Dice.DiceAnimationComplete += () => { Mouse.Enable(MouseButton.Left); };
-        ui.Dice.DiceAnimationComplete += () => ThrowDice();
+        ui.Dice.DiceAnimationComplete += () =>
+        {
+            //Mouse.Enable(MouseButton.Left);
+            kimble.GameState = GameState.ChoosingPieceToMove;
+        };
+        ui.Dice.DiceAnimationComplete += () => DiceThrown();
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
         Listener l = Mouse.ListenOn(ui.Dice, MouseButton.Left, ButtonState.Pressed, () =>
         {
-            kimble.DiceNow = ui.Dice.Throw();
-            Mouse.Disable(MouseButton.Left);
+            if (kimble.GameState != GameState.ReadyToRollDice) return;
+            //kimble.DiceNow = ui.Dice.Throw();
+            kimble.ThrowDice();
+            ui.Dice.Roll(kimble.DiceNow);
         }, null);
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
     }
 
     public event EventHandler MovablePieceSelected;
 
-    private void ThrowDice()
+    private void DiceThrown()
     {
         string movablesStr = "";
         var positionsThatCanMove = kimble.GetPositionsThatCanMove();
         MessageDisplay.Add($"{kimble.PlayerInTurn.Color} heitti: {kimble.DiceNow}");
         kimble.PiecesThatCanMove.ForEach(p => movablesStr += kimble.Board.GetIndexOf(p.oldPosition) + ", ");
-        ui.UpdateDiceLabel($"Dice shows: {kimble.DiceNow}");
-        ui.UpdateLabels();
 
         GameObject[] piecesThatCanMove_GO = ui.GetPiecesThatCanMove();
-        MovablePieceSelected = ui.FlashMovables(MovablePieceSelected);
+        MovablePieceSelected = ui.AnimateMovables(MovablePieceSelected);
 
         if (kimble.PiecesThatCanMove.Count != 0)
         {
-            ui.UpdateMovables($"You can move: {movablesStr}");
             foreach (GameObject item in piecesThatCanMove_GO)
             {
                 Mouse.ListenOn(item, MouseButton.Left, ButtonState.Pressed, () =>
                 {
-                    // MessageDisplay.Add("Moi");
-                    MoveSelected(item);
                     MovablePieceSelected?.Invoke(this, EventArgs.Empty);
+                    MovablePieceSelected = null;
+                    MoveSelected(item);
                 }, null);
             }
-            /**/
-            // InputWindow iw = SelectAndMove(movablesStr);
-            /*                
-            iw.Closed += delegate
-            */
-            // MovablePieceSelected += (o, e) =>
+
             void MoveSelected(GameObject item)
             {
                 Position oldPos = ui.GetPositionOf(item);
                 Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
-                MessageDisplay.Add($"Moved piece from position {Array.IndexOf(kimble.Board.Positions, oldPos)}");
                 kimble.Move(oldPos, newPos, ui.MovePiece);
-                ui.UpdateLabels();
-                ui.UpdateMovables("");
                 if (kimble.DiceNow == 6)
                 {
+                    kimble.GameState = GameState.ReadyToRollDice;
                     MessageDisplay.Add("Heitä uudestaan");
-                    ui.UpdateDiceLabel("");
                     return;
                 }
                 else NewTurn();
@@ -76,20 +71,19 @@ public class KimbleGame : Game
         }
         else
         {
-            ui.UpdateMovables("You can not move.");
             NewTurn();
         }
     }
 
+    public Action PointerMovedToNewLocation;
+
     private void NewTurn()
     {
+        // kimble.GameState = GameState.ReadyToRollDice;
         kimble.NextPlayer();
-        ui.UpdateMovables("");
-        ui.UpdateDiceLabel("");
         Timer.SingleShot(1.0, () =>
         {
-            ui.UpdatePointer();
-            ui.UpdateLabels();
+            ui.UpdatePointer(() => kimble.GameState = GameState.ReadyToRollDice);
             MessageDisplay.Add($"Vuorossa nyt: {kimble.PlayerInTurn.Color}");
         });
     }

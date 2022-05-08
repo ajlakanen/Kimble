@@ -67,10 +67,10 @@ internal class Dice : GameObject
     /// Throw dice. 
     /// </summary>
     /// <returns>Number.</returns>
-    public int Throw()
+    public void Roll(int value)
     {
         // This is the actual returned number.
-        int value = new Random().Next(1, 7);
+        //int value = new Random().Next(1, 7);
 
         // We need this construct for the animation
         // because the lambda (below) would capture the
@@ -102,6 +102,7 @@ internal class Dice : GameObject
             });
         }
 
+        // This shows the actual value of the dice.
         Timer.SingleShot(0.1 * (AnimSteps + 1), () =>
         {
             Hide();
@@ -110,7 +111,7 @@ internal class Dice : GameObject
             DiceAnimationComplete?.Invoke();
         });
 
-        return value;
+        //return value;
         int Next() { return animNumbers[animStepNow++]; }
     }
 

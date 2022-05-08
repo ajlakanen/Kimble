@@ -4,11 +4,21 @@ using System.Linq;
 
 namespace Kimble;
 
+enum GameState
+{
+    ReadyToRollDice,
+    DiceRolling,
+    ChoosingPieceToMove,
+    TurnChanging
+}
+
 /// <summary>
 /// Kimble main logic class.
 /// </summary>
 internal class Kimble
 {
+    public GameState GameState { get; set; }
+
     /// <summary>
     /// Players.
     /// </summary>
@@ -55,6 +65,7 @@ internal class Kimble
         Players = CreatePlayers();
         PlayerInTurn = Players[0];
         Board = new Board(Players);
+        GameState = GameState.ReadyToRollDice;
     }
 
     private Player[] CreatePlayers()
@@ -73,6 +84,15 @@ internal class Kimble
             Players[i] = player;
         }
         return Players;
+    }
+
+    public int ThrowDice()
+    {
+        GameState = GameState.DiceRolling;
+        // This is the actual returned number.
+        int value = new Random().Next(1, 7);
+        DiceNow = value;
+        return value;
     }
 
     /// <summary>
@@ -100,12 +120,12 @@ internal class Kimble
         if (!(newPosition.IsVacant))
         {
             Home home = Board.GetVacantHomePosition(newPosition.PlayerInPosition);
-            Player playerToMove = newPosition.PlayerInPosition;            
+            Player playerToMove = newPosition.PlayerInPosition;
             newPosition.MovePlayerTo(home);
             moveHandler(playerToMove, newPosition, home);
         }
 
-        oldPosition.MovePlayerTo(newPosition); 
+        oldPosition.MovePlayerTo(newPosition);
         moveHandler(newPosition.PlayerInPosition, oldPosition, newPosition);
 
         // If all pieces are in safe, player in turn wins

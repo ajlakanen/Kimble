@@ -25,12 +25,8 @@ internal class UI
 
     readonly Kimble kimble;
     readonly Game game;
-    private Dictionary<Player, Label> labels;
     private GameObject pointer;
     private Dictionary<Player, List<(Position position, GameObject gameObject)>> pieces;
-
-    private Label diceLabel; // TODO: This will be deleted
-    Label youCanMove; // TODO: This will be deleted
 
     public UI(Game game, Kimble kimble)
     {
@@ -220,24 +216,9 @@ internal class UI
 
     public void CreateLabels(double x, double y)
     {
-        Vector bottom = CreatePlayerLabels(x, y);
-        CreateDiceLabel(bottom.X, bottom.Y);
-        CreateYouCanMoveLabel(300, diceLabel.Y);
         CreatePointer(x, y);
     }
 
-    private void CreateYouCanMoveLabel(double x, double y)
-    {
-        youCanMove = new Label
-        {
-            Left = diceLabel.Right + 150,
-            Y = y,
-            Color = Jypeli.Color.Black,
-            TextColor = Jypeli.Color.White,
-            Text = ""
-        };
-        game.Add(youCanMove);
-    }
 
     private void CreatePointer(double x, double y)
     {
@@ -250,73 +231,16 @@ internal class UI
         game.Add(pointer);
     }
 
-    void CreateDiceLabel(double x, double y)
-    {
-        diceLabel = new Label
-        {
-            Left = x,
-            Top = y,
-            Color = Jypeli.Color.Black,
-            TextColor = Jypeli.Color.White,
-            Text = "Dice shows:  "
-        };
-        game.Add(diceLabel);
-    }
-
-    Vector CreatePlayerLabels(double x, double y)
-    {
-        Dictionary<Player, Label> playerPositionLabels = new();
-
-        Dictionary<Color, Jypeli.Color> colors = new()
-        {
-            { Color.Red, Jypeli.Color.Red },
-            { Color.Green, Jypeli.Color.Green },
-            { Color.Blue, Jypeli.Color.Blue },
-            { Color.Yellow, Jypeli.Color.Yellow }
-        };
-
-        foreach (var player in kimble.Players)
-        {
-            Label label = new()
-            {
-                TextColor = colors[player.Color],
-                Text = $"{player.Color.Stringify()} ({player.SafeEnd}): {kimble.Board.PrintPositions(player)}",
-                Color = Jypeli.Color.Black
-            };
-            label.Left = x;
-            label.Top = y;
-            y -= (int)(label.Height * 1.5);
-            playerPositionLabels.Add(player, label);
-            game.Add(label);
-        }
-        labels = playerPositionLabels;
-        return new Vector(x, y);
-    }
-
-    public Action PointerAnimationComplete;
-
-    internal void UpdateLabels()
-    {
-        foreach (var label in labels)
-            label.Value.Text = $"{label.Key.Color.Stringify()} ({label.Key.SafeEnd}): {kimble.Board.PrintPositions(label.Key)}";
-    }
-
-    public void UpdatePointer()
+    public void UpdatePointer(Action pointerUpdatedHandler)
     {
         Vector v = BoardToUIPosition(kimble.Board.Positions[kimble.PlayerInTurn.HomeStartsFrom + 3] as Home);
         v = Vector.FromLengthAndAngle(v.Magnitude * 1.2, v.Angle);
         pointer.Color = Jypeli.Color.White;
-        pointer.MoveTo(v, 1000);
-        
-        Timer.SingleShot(0.5, () =>
+        pointer.MoveTo(v, 1000, () =>
         {
-             pointer.Color = kimble.PlayerInTurn.Color.ToJypeliColor();
+            pointer.Color = kimble.PlayerInTurn.Color.ToJypeliColor();
+            pointerUpdatedHandler();
         });
-    }
-
-    public void UpdateDiceLabel(string s)
-    {
-        diceLabel.Text = s;
     }
 
     public GameObject[] GetPiecesThatCanMove()
@@ -326,7 +250,7 @@ internal class UI
         return piecesToMove;
     }
 
-    public EventHandler FlashMovables(EventHandler timerStopHandler)
+    public EventHandler AnimateMovables(EventHandler timerStopHandler)
     {
         GameObject[] piecesToMove = GetPiecesThatCanMove();
 
@@ -341,15 +265,13 @@ internal class UI
             };
             t.Start();
 
-            timerStopHandler += (o, e) => { t.Stop(); };
+            timerStopHandler += (o, e) =>
+            {
+                t.Stop();
+                piece.Color = kimble.PlayerInTurn.Color.ToJypeliColor();
+            };
         }
         return timerStopHandler;
-    }
-
-    internal void UpdateMovables(string s)
-    {
-        if (s.Length == 0) youCanMove.Text = "";
-        else youCanMove.Text = s;
     }
 
     public Position GetPositionOf(GameObject g)
