@@ -59,7 +59,27 @@ public class KimbleGame : Game
             {
                 Position oldPos = ui.GetPositionOf(item);
                 Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
+
+                //if (oldPos is not Home && newPos is not Safe)
+                //{
+                //    for (int i = 0; i < kimble.DiceNow;)
+                //    {
+                //        Timer.SingleShot(i * 1.0 + 0.01, () => ui.MoveAlongArc(item));
+                //        i++;
+                //    }
+                //}
+                //else
+                //{
+                //    item.MoveTo(ui.BoardToUIPosition(newPos), 1000, UIMove);
+                //}
+
+                //void UIMove() =>  
+                // ui.MovePiece(kimble.PlayerInTurn, oldPos, newPos, ui.MovePiece);
+
+                // Move in game state
                 kimble.Move(oldPos, newPos, ui.MovePiece);
+                //else if (newPos is Safe) kimble.Move(oldPos, newPos);//, ui.MovePiece);
+                //else kimble.Move(oldPos, newPos, ui.MoveAlongArc);
                 if (kimble.DiceNow == 6)
                 {
                     kimble.GameState = GameState.ReadyToRollDice;
@@ -98,7 +118,7 @@ public class KimbleGame : Game
             Position oldPos = kimble.Board.Positions[selected];
             Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
             MessageDisplay.Add($"Moved piece from position {selected}");
-            kimble.Move(oldPos, newPos, ui.MovePiece);
+            //kimble.Move(oldPos, newPos);//, ui.MovePiece);
         };
         return iw;
     }

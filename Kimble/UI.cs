@@ -86,7 +86,7 @@ internal class UI
         return posUI;
     }
 
-    private Vector BoardToUIPosition(Position position)
+    public  Vector BoardToUIPosition(Position position)
     {
         var basicPositions = kimble.Board.Positions.Select(pos => pos).Where(pos => pos is not Home && pos is not Safe).ToList();
         int index = basicPositions.IndexOf(position);
@@ -104,6 +104,25 @@ internal class UI
         else piece.Position = BoardToUIPosition(newPosition);
         position = newPosition;
         list[index] = (position, piece);
+    }
+
+    /// <summary>
+    /// Moves an object one "stop" around the arc.
+    /// </summary>
+    public void MoveAlongArc(GameObject g)
+    {
+        double distance = Math.PI / 14;
+        Timer t = new Timer();
+        t.Interval = 0.01;
+        int speed = 4;
+        int times = (int)(1 / t.Interval) / speed;
+        t.Timeout += () => {
+            double angle = Math.Atan2(g.Y, g.X);
+            double angleToAdd = distance * t.Interval * speed;
+            angle -= angleToAdd;
+            g.Position = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(angle));
+        };
+        t.Start(times);
     }
 
     private Position GetCurrentPosition(Player player, GameObject gameObject)
@@ -275,22 +294,5 @@ internal class UI
         return pieces[kimble.PlayerInTurn].Select(x => x).Where(x => x.gameObject == g).First().position;
     }
 
-    /// <summary>
-    /// Moves an object one "stop" around the arc.
-    /// </summary>
-    public void MoveAlongArc(GameObject g)
-    {
-        double distance = Math.PI / 20;
-        Timer t = new Timer();
-        t.Interval = 0.01;
-        int speed = 4;
-        int times = (int)(1 / t.Interval) / speed;
-        t.Timeout += () => {
-            double angle = Math.Atan2(g.Y, g.X);
-            double angleToAdd = distance * t.Interval * speed;
-            angle += angleToAdd;
-            g.Position = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(angle));
-        };
-        t.Start(times);
-    }
+
 }

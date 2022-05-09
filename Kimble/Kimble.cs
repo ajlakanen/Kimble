@@ -56,6 +56,8 @@ internal class Kimble
     /// <param name="oldPos">Old position</param>
     /// <param name="newPos">New position.</param>
     public delegate void MoveHandler(Player player, Position oldPos, Position newPos);
+ 
+    //public delegate void MoveHandler(GameObject g);
 
     /// <summary>
     /// Initialize players and board.
@@ -90,7 +92,7 @@ internal class Kimble
     {
         GameState = GameState.DiceRolling;
         // This is the actual returned number.
-        int value = new Random().Next(1, 7);
+        int value = new Random().Next(5, 7);
         DiceNow = value;
         return value;
     }
@@ -122,7 +124,7 @@ internal class Kimble
             Home home = Board.GetVacantHomePosition(newPosition.PlayerInPosition);
             Player playerToMove = newPosition.PlayerInPosition;
             newPosition.MovePlayerTo(home);
-            moveHandler(playerToMove, newPosition, home);
+            //moveHandler(playerToMove, newPosition, home);
         }
 
         oldPosition.MovePlayerTo(newPosition);
