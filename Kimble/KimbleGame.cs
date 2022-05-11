@@ -1,5 +1,6 @@
 using Jypeli;
 using System;
+using System.Collections.Generic;
 
 namespace Kimble;
 
@@ -26,13 +27,14 @@ public class KimbleGame : Game
             if (kimble.GameState != GameState.ReadyToRollDice) return;
             //kimble.DiceNow = ui.Dice.Throw();
             kimble.ThrowDice();
-            ui.Dice.Roll(kimble.DiceNow);
+            ui.Dice.RollAnimation(kimble.DiceNow);
         }, null);
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
     }
 
     public event EventHandler MovablePieceSelected;
 
+    public Action PieceMoved;
     private void DiceThrown()
     {
         string movablesStr = "";
@@ -45,41 +47,48 @@ public class KimbleGame : Game
 
         if (kimble.PiecesThatCanMove.Count != 0)
         {
+            List<Listener> listeners = new();
             foreach (GameObject item in piecesThatCanMove_GO)
             {
-                Mouse.ListenOn(item, MouseButton.Left, ButtonState.Pressed, () =>
+                Listener l = Mouse.ListenOn(item, MouseButton.Left, ButtonState.Pressed, () =>
                 {
                     MovablePieceSelected?.Invoke(this, EventArgs.Empty);
                     MovablePieceSelected = null;
-                    MoveSelected(item);
+                    MovableSelected(item);
+                    listeners.ForEach(x => x.Destroy());
                 }, null);
+                listeners.Add(l);
             }
 
-            void MoveSelected(GameObject item)
+            // ui.MovePiece(kimble.PlayerInTurn, oldPos, newPos, ui.MovePiece);
+        }
+        else
+        {
+            NewTurn();
+        }
+
+        void MovableSelected(GameObject item)
+        {
+            Position oldPos = ui.GetPositionOf(item);
+            Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
+            PieceMoved += () => PieceMovedHandler();
+            MoveComplete();
+            /* 
+            if (oldPos is not Home && newPos is not Safe)
             {
-                Position oldPos = ui.GetPositionOf(item);
-                Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
+                Timer.SingleShot(0.01, () => ui.MoveAlongArc(item, kimble.DiceNow, PieceMoved));
+            }
+            else
+            {
+                item.MoveTo(ui.BoardToUIPosition(newPos), 1000, MoveComplete);
+                // MoveComplete();
+            }
+            */
 
-                //if (oldPos is not Home && newPos is not Safe)
-                //{
-                //    for (int i = 0; i < kimble.DiceNow;)
-                //    {
-                //        Timer.SingleShot(i * 1.0 + 0.01, () => ui.MoveAlongArc(item));
-                //        i++;
-                //    }
-                //}
-                //else
-                //{
-                //    item.MoveTo(ui.BoardToUIPosition(newPos), 1000, UIMove);
-                //}
-
-                //void UIMove() =>  
-                // ui.MovePiece(kimble.PlayerInTurn, oldPos, newPos, ui.MovePiece);
-
-                // Move in game state
-                kimble.Move(oldPos, newPos, ui.MovePiece);
-                //else if (newPos is Safe) kimble.Move(oldPos, newPos);//, ui.MovePiece);
-                //else kimble.Move(oldPos, newPos, ui.MoveAlongArc);
+            void MoveComplete()
+            {
+                //kimble.Move(oldPos, newPos, ui.MovePiece);
+                kimble.Move(oldPos, newPos, PieceMoved);
                 if (kimble.DiceNow == 6)
                 {
                     kimble.GameState = GameState.ReadyToRollDice;
@@ -87,11 +96,13 @@ public class KimbleGame : Game
                     return;
                 }
                 else NewTurn();
-            };
-        }
-        else
-        {
-            NewTurn();
+            }
+
+            void PieceMovedHandler()
+            {
+                ui.MovePiece(newPos.PlayerInPosition, oldPos, newPos);
+                PieceMoved = null;
+            }
         }
     }
 

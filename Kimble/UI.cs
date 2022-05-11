@@ -109,20 +109,31 @@ internal class UI
     /// <summary>
     /// Moves an object one "stop" around the arc.
     /// </summary>
-    public void MoveAlongArc(GameObject g)
+    public void MoveAlongArc(GameObject g, int steps, Action moveCompletedHandler)
     {
-        double distance = Math.PI / 14;
-        Timer t = new Timer();
-        t.Interval = 0.01;
-        int speed = 4;
-        int times = (int)(1 / t.Interval) / speed;
-        t.Timeout += () => {
-            double angle = Math.Atan2(g.Y, g.X);
-            double angleToAdd = distance * t.Interval * speed;
-            angle -= angleToAdd;
-            g.Position = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(angle));
-        };
-        t.Start(times);
+        Timer moveTimer = new Timer();
+        moveTimer.Interval = 0.75;
+        moveTimer.Timeout += () => Move(g);
+        moveTimer.Start(steps);
+
+        Timer.SingleShot(steps * moveTimer.Interval + 0.1, () => moveCompletedHandler?.Invoke());
+
+        static void Move(GameObject g)
+        {
+            double distance = Math.PI / 14;
+            Timer t = new Timer();
+            t.Interval = 0.01;
+            int speed = 4;
+            int times = (int)(1 / t.Interval) / speed;
+            t.Timeout += () =>
+            {
+                double angle = Math.Atan2(g.Y, g.X);
+                double angleToAdd = distance * t.Interval * speed;
+                angle -= angleToAdd;
+                g.Position = Vector.FromLengthAndAngle(BasicDistance, Angle.FromRadians(angle));
+            };
+            t.Start(times);
+        }
     }
 
     private Position GetCurrentPosition(Player player, GameObject gameObject)

@@ -52,7 +52,7 @@ internal class Dice : GameObject
         }
     }
 
-    public void Hide()
+    public void HideEyes()
     {
         foreach (var eye in _eyes.Values)
             eye.IsVisible = false;
@@ -67,11 +67,8 @@ internal class Dice : GameObject
     /// Throw dice. 
     /// </summary>
     /// <returns>Number.</returns>
-    public void Roll(int value)
+    public void RollAnimation(int value)
     {
-        // This is the actual returned number.
-        //int value = new Random().Next(1, 7);
-
         // We need this construct for the animation
         // because the lambda (below) would capture the
         // i value of the loop, thus, we can not use 
@@ -97,25 +94,24 @@ internal class Dice : GameObject
         {
             Timer.SingleShot(0.1 * i, () =>
             {
-                Hide();
-                Show(Next());
+                HideEyes();
+                ShowValue(Next());
             });
         }
 
         // This shows the actual value of the dice.
         Timer.SingleShot(0.1 * (AnimSteps + 1), () =>
         {
-            Hide();
-            Show(value);
+            HideEyes();
+            ShowValue(value);
             this.Color = Jypeli.Color.White;
             DiceAnimationComplete?.Invoke();
         });
 
-        //return value;
         int Next() { return animNumbers[animStepNow++]; }
     }
 
-    public void Show(int value)
+    public void ShowValue(int value)
     {
         foreach (var go in _numbers[value])
             _eyes[go].IsVisible = true;
