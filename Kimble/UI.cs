@@ -94,16 +94,17 @@ internal class UI
         return posUI;
     }
 
-    internal void MovePiece(Player player, Position oldPosition, Position newPosition)
+    internal void MovePiece(Player player, Position oldPosition, Position newPosition, GameObject gameObject)
     {
-        var list = pieces[player];
-        (Position position, GameObject piece) = pieces[player].Select(x => x).Where(x => x.position == oldPosition).First();
-        int index = list.IndexOf((position, piece));
+        //var list = pieces[player];
+        //(Position position, GameObject piece) = pieces[player].Select(x => x).Where(x => x.position == oldPosition).First();
+        (Position position, GameObject piece) = (oldPosition, gameObject);
+        int index = pieces[player].IndexOf((position, piece));
         if (newPosition is Safe) piece.Position = BoardToUIPosition(newPosition as Safe);
         else if (newPosition is Home) piece.Position = BoardToUIPosition(newPosition as Home);
         else piece.Position = BoardToUIPosition(newPosition);
         position = newPosition;
-        list[index] = (position, piece);
+        pieces[player][index] = (position, piece);
     }
 
     /// <summary>

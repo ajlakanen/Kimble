@@ -100,7 +100,7 @@ public class KimbleGame : Game
 
             void PieceMovedHandler()
             {
-                ui.MovePiece(newPos.PlayerInPosition, oldPos, newPos);
+                ui.MovePiece(newPos.PlayerInPosition, oldPos, newPos, item);
                 PieceMoved = null;
             }
         }
