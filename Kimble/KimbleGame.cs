@@ -70,7 +70,7 @@ public class KimbleGame : Game
             Position oldPos = ui.GetPositionOf(item);
             Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
             PieceMoved += () => PieceMovedHandler();
-            ui.MovePieceController(oldPos.PlayerInPosition, oldPos, newPos, item, PieceMoved);
+            ui.MovePiece(oldPos.PlayerInPosition, oldPos, newPos, item, PieceMoved);
             
             MoveComplete();
             /* 

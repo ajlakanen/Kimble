@@ -92,7 +92,7 @@ internal class Kimble
     {
         GameState = GameState.DiceRolling;
         // This is the actual returned number.
-        int value = new Random().Next(5, 7);
+        int value = new Random().Next(3, 7);
         DiceNow = value;
         return value;
     }
@@ -103,8 +103,6 @@ internal class Kimble
     /// <returns>Movable pieces.</returns>
     public List<(Position, Position)> GetPositionsThatCanMove()
     {
-        //Random random = new();
-        //DiceNow = random.Next(1, 7);
         PiecesThatCanMove = Board.MovablePositions(PlayerInTurn, DiceNow);
         return PiecesThatCanMove;
     }

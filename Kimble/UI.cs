@@ -95,7 +95,7 @@ internal class UI
         return posUI;
     }
 
-    internal void MovePieceController(Player player, Position oldPosition, Position newPosition, GameObject piece, Action pieceMovedHandler)
+    internal void MovePiece(Player player, Position oldPosition, Position newPosition, GameObject piece, Action pieceMovedHandler)
     {
         pieces[player][piece] = newPosition;
         if (newPosition is Safe) piece.MoveTo(BoardToUIPosition(newPosition as Safe), 1000);
