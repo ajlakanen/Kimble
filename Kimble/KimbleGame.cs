@@ -59,8 +59,6 @@ public class KimbleGame : Game
                 }, null);
                 listeners.Add(l);
             }
-
-            // ui.MovePiece(kimble.PlayerInTurn, oldPos, newPos, ui.MovePiece);
         }
         else
         {
@@ -72,6 +70,8 @@ public class KimbleGame : Game
             Position oldPos = ui.GetPositionOf(item);
             Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
             PieceMoved += () => PieceMovedHandler();
+            ui.MovePieceController(oldPos.PlayerInPosition, oldPos, newPos, item, PieceMoved);
+            
             MoveComplete();
             /* 
             if (oldPos is not Home && newPos is not Safe)
@@ -88,7 +88,12 @@ public class KimbleGame : Game
             void MoveComplete()
             {
                 //kimble.Move(oldPos, newPos, ui.MovePiece);
-                kimble.Move(oldPos, newPos, PieceMoved);
+            }
+
+            void PieceMovedHandler()
+            {
+                kimble.Move(oldPos, newPos);//, PieceMoved);
+                PieceMoved = null; 
                 if (kimble.DiceNow == 6)
                 {
                     kimble.GameState = GameState.ReadyToRollDice;
@@ -96,12 +101,6 @@ public class KimbleGame : Game
                     return;
                 }
                 else NewTurn();
-            }
-
-            void PieceMovedHandler()
-            {
-                ui.MovePiece(newPos.PlayerInPosition, oldPos, newPos, item);
-                PieceMoved = null;
             }
         }
     }

@@ -117,7 +117,7 @@ internal class Kimble
     /// <param name="moveHandler">UI move handler</param>
     /// <returns>Has the player won</returns>
     //public bool Move(Position oldPosition, Position newPosition, MoveHandler moveHandler)
-    public bool Move(Position oldPosition, Position newPosition, Action moveHandler)
+    public bool Move(Position oldPosition, Position newPosition)//, Action moveHandler)
     {
         // If there was opponent's piece, move opponent to home
         if (!(newPosition.IsVacant))
@@ -129,7 +129,7 @@ internal class Kimble
 
         oldPosition.MovePlayerTo(newPosition);
         //moveHandler(newPosition.PlayerInPosition, oldPosition, newPosition);
-        moveHandler?.Invoke();
+        //moveHandler?.Invoke();
 
         // If all pieces are in safe, player in turn wins
         if (Board.Positions.Select(pos => pos).Where(pos => pos.PlayerInPosition == PlayerInTurn).All(pos => pos is Safe))

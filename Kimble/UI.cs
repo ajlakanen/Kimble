@@ -26,7 +26,8 @@ internal class UI
     readonly Kimble kimble;
     readonly Game game;
     private GameObject pointer;
-    private Dictionary<Player, List<(Position position, GameObject gameObject)>> pieces;
+    //private Dictionary<Player, List<(Position position, GameObject gameObject)>> pieces;
+    private Dictionary<Player, Dictionary<GameObject, Position>> pieces;
 
     public UI(Game game, Kimble kimble)
     {
@@ -86,7 +87,7 @@ internal class UI
         return posUI;
     }
 
-    public  Vector BoardToUIPosition(Position position)
+    public Vector BoardToUIPosition(Position position)
     {
         var basicPositions = kimble.Board.Positions.Select(pos => pos).Where(pos => pos is not Home && pos is not Safe).ToList();
         int index = basicPositions.IndexOf(position);
@@ -94,17 +95,18 @@ internal class UI
         return posUI;
     }
 
-    internal void MovePiece(Player player, Position oldPosition, Position newPosition, GameObject gameObject)
+    internal void MovePieceController(Player player, Position oldPosition, Position newPosition, GameObject piece, Action pieceMovedHandler)
     {
-        //var list = pieces[player];
-        //(Position position, GameObject piece) = pieces[player].Select(x => x).Where(x => x.position == oldPosition).First();
-        (Position position, GameObject piece) = (oldPosition, gameObject);
-        int index = pieces[player].IndexOf((position, piece));
-        if (newPosition is Safe) piece.Position = BoardToUIPosition(newPosition as Safe);
-        else if (newPosition is Home) piece.Position = BoardToUIPosition(newPosition as Home);
-        else piece.Position = BoardToUIPosition(newPosition);
-        position = newPosition;
-        pieces[player][index] = (position, piece);
+        pieces[player][piece] = newPosition;
+        if (newPosition is Safe) piece.MoveTo(BoardToUIPosition(newPosition as Safe), 1000);
+        else if (oldPosition is Home) piece.MoveTo(BoardToUIPosition(newPosition), 1000);
+        else if (newPosition is Home) piece.MoveTo(BoardToUIPosition(newPosition as Home), 1000);
+        else
+        {
+            Timer.SingleShot(0.05, () => MoveAlongArc(piece, kimble.DiceNow, pieceMovedHandler));
+            return;
+        }
+        pieceMovedHandler.Invoke();
     }
 
     /// <summary>
@@ -113,12 +115,10 @@ internal class UI
     public void MoveAlongArc(GameObject g, int steps, Action moveCompletedHandler)
     {
         Timer moveTimer = new Timer();
-        moveTimer.Interval = 0.75;
+        moveTimer.Interval = 0.50;
         moveTimer.Timeout += () => Move(g);
         moveTimer.Start(steps);
-
         Timer.SingleShot(steps * moveTimer.Interval + 0.1, () => moveCompletedHandler?.Invoke());
-
         static void Move(GameObject g)
         {
             double distance = Math.PI / 14;
@@ -139,8 +139,9 @@ internal class UI
 
     private Position GetCurrentPosition(Player player, GameObject gameObject)
     {
-        (Position position, GameObject piece) = pieces[player].Select(x => x).Where(x => x.gameObject == gameObject).First();
-        return position;
+        //(Position position, GameObject piece) = pieces[player].Select(go_pos => go_pos).Where(go_pos => go_pos.Key == gameObject).First();
+        //return position;
+        return pieces[player][gameObject];
     }
 
 
@@ -171,13 +172,13 @@ internal class UI
 
             for (int j = 0; j < 4; j++)
             {
-                Player p = kimble.Players[i];
+                Player player = kimble.Players[i];
                 Home homeNow = kimble.Board.Positions[homeStartsFrom + j] as Home;
                 Vector position = BoardToUIPosition(homeNow);
                 DrawPosition(i, homeStartsFrom, j, position);
                 GameObject piece = new(20, 20, Shape.Circle)
                 {
-                    Color = p.Color.ToJypeliColor(),
+                    Color = player.Color.ToJypeliColor(),
                     Position = position
                 };
                 /* DEBUG: 
@@ -197,13 +198,13 @@ internal class UI
                 }, null);
                 */
                 game.Add(piece);
-                if (pieces.ContainsKey(p))
+                if (pieces.ContainsKey(player))
                 {
-                    pieces[p].Add((homeNow, piece));
+                    pieces[player].Add(piece, homeNow);
                 }
                 else
                 {
-                    pieces.Add(p, new() { (homeNow, piece) });
+                    pieces.Add(player, new() { { piece, homeNow } });
                 }
             }
         }
@@ -273,7 +274,7 @@ internal class UI
     public GameObject[] GetPiecesThatCanMove()
     {
         List<Position> positionsToMove = kimble.PiecesThatCanMove.Select(x => x.oldPosition).ToList();
-        GameObject[] piecesToMove = pieces[kimble.PlayerInTurn].Select(x => x).Where(x => positionsToMove.Any(p => p == x.position)).Select(x => x.gameObject).ToArray();
+        GameObject[] piecesToMove = pieces[kimble.PlayerInTurn].Select(go_pos => go_pos).Where(go_pos => positionsToMove.Any(p => p == go_pos.Value)).Select(x => x.Key).ToArray();
         return piecesToMove;
     }
 
@@ -303,8 +304,7 @@ internal class UI
 
     public Position GetPositionOf(GameObject g)
     {
-        return pieces[kimble.PlayerInTurn].Select(x => x).Where(x => x.gameObject == g).First().position;
+        //return pieces[kimble.PlayerInTurn].Select(x => x).Where(x => x.gameObject == g).First().position;
+        return GetCurrentPosition(kimble.PlayerInTurn, g);
     }
-
-
 }
