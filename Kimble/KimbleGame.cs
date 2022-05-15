@@ -70,6 +70,12 @@ public class KimbleGame : Game
             Position oldPos = ui.GetPositionOf(item);
             Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
             PieceMoved += () => PieceMovedHandler();
+            bool opponentFound = kimble.CheckForOpponent(newPos, out Player opponent, out Home opponentHome);
+            if (opponentFound)
+            {
+                ui.MovePiece(opponent, newPos, opponentHome, ui.GetObjectAt(opponent, newPos), null);
+                kimble.Move(newPos, opponentHome);
+            }
             ui.MovePiece(oldPos.PlayerInPosition, oldPos, newPos, item, PieceMoved);
             
             MoveComplete();
@@ -93,6 +99,9 @@ public class KimbleGame : Game
             void PieceMovedHandler()
             {
                 kimble.Move(oldPos, newPos);//, PieceMoved);
+                //if (opponentWasEaten.opponentWasEaten) ui.MovePiece(opponentWasEaten.opponent, oldPos, opponentWasEaten.opponentHome, ui.GetObjectAt(opponentWasEaten.opponent, oldPos), null);
+                //kimble.Move(oldPos, newPos, ui.MovePiece);//, PieceMoved);
+                bool isGameOver = kimble.IsGameOver();
                 PieceMoved = null; 
                 if (kimble.DiceNow == 6)
                 {

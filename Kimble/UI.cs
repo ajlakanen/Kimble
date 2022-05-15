@@ -27,7 +27,7 @@ internal class UI
     readonly Game game;
     private GameObject pointer;
     //private Dictionary<Player, List<(Position position, GameObject gameObject)>> pieces;
-    private Dictionary<Player, Dictionary<GameObject, Position>> pieces;
+    public Dictionary<Player, Dictionary<GameObject, Position>> pieces { get; private set; }
 
     public UI(Game game, Kimble kimble)
     {
@@ -106,7 +106,7 @@ internal class UI
             Timer.SingleShot(0.05, () => MoveAlongArc(piece, kimble.DiceNow, pieceMovedHandler));
             return;
         }
-        pieceMovedHandler.Invoke();
+        pieceMovedHandler?.Invoke();
     }
 
     /// <summary>
@@ -306,5 +306,10 @@ internal class UI
     {
         //return pieces[kimble.PlayerInTurn].Select(x => x).Where(x => x.gameObject == g).First().position;
         return GetCurrentPosition(kimble.PlayerInTurn, g);
+    }
+
+    public GameObject GetObjectAt(Player player, Position position)
+    {
+        return pieces[player].Select(x => x).Where(x => x.Value == position).First().Key;
     }
 }

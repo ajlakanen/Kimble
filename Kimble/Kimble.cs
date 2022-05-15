@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Jypeli;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -55,8 +56,8 @@ internal class Kimble
     /// <param name="player">Player</param>
     /// <param name="oldPos">Old position</param>
     /// <param name="newPos">New position.</param>
-    public delegate void MoveHandler(Player player, Position oldPos, Position newPos);//, GameObject g);
- 
+    public delegate void MoveHandler(Player player, Position oldPos, Position newPos, GameObject g);
+
     //public delegate void MoveHandler(GameObject g);
 
     /// <summary>
@@ -97,6 +98,22 @@ internal class Kimble
         return value;
     }
 
+    internal bool CheckForOpponent(Position position, out Player opponent, out Home opponentHome)
+    {
+        if (!(position.IsVacant))
+        {
+            opponentHome = Board.GetVacantHomePosition(position.PlayerInPosition);
+            opponent = position.PlayerInPosition;
+            return true;
+        }
+        else
+        {
+            opponentHome = null;
+            opponent = null;
+            return false;
+        }
+    }
+
     /// <summary>
     /// Throw dice, return the pieces that can move. 
     /// </summary>
@@ -115,20 +132,28 @@ internal class Kimble
     /// <param name="moveHandler">UI move handler</param>
     /// <returns>Has the player won</returns>
     //public bool Move(Position oldPosition, Position newPosition, MoveHandler moveHandler)
-    public bool Move(Position oldPosition, Position newPosition)//, Action moveHandler)
+    public void Move(Position oldPosition, Position newPosition)
     {
+        //Player opponent = null;
+        //Home opponentHome = null;
+        //bool opponentWasEaten = false;
         // If there was opponent's piece, move opponent to home
-        if (!(newPosition.IsVacant))
-        {
-            Home home = Board.GetVacantHomePosition(newPosition.PlayerInPosition);
-            Player playerToMove = newPosition.PlayerInPosition;
-            newPosition.MovePlayerTo(home);
-        }
+        //if (!(newPosition.IsVacant))
+        //{
+        //    opponentWasEaten = true;
+        //    opponentHome = Board.GetVacantHomePosition(newPosition.PlayerInPosition);
+        //    opponent = newPosition.PlayerInPosition;
+        //    newPosition.MovePlayerTo(opponentHome);
+        //}
 
         oldPosition.MovePlayerTo(newPosition);
         //moveHandler(newPosition.PlayerInPosition, oldPosition, newPosition);
         //moveHandler?.Invoke();
+        //return (opponentWasEaten, opponent, opponentHome);
+    }
 
+    public bool IsGameOver()
+    {
         // If all pieces are in safe, player in turn wins
         if (Board.Positions.Select(pos => pos).Where(pos => pos.PlayerInPosition == PlayerInTurn).All(pos => pos is Safe))
         {
