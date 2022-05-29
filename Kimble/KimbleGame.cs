@@ -15,6 +15,9 @@ public class KimbleGame : Game
         CenterWindow();
         kimble = new();
         ui = new(this, kimble);
+
+        bool debug = false;
+
         ui.Dice.DiceAnimationComplete += () =>
         {
             //Mouse.Enable(MouseButton.Left);
@@ -30,6 +33,29 @@ public class KimbleGame : Game
             ui.Dice.RollAnimation(kimble.DiceNow);
         }, null);
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
+
+        if (debug)
+        {
+            foreach (KeyValuePair<Player, Dictionary<GameObject, Position>> kv in ui.pieces)
+            {
+                foreach (KeyValuePair<GameObject, Position> go_pos in kv.Value)
+                {
+                    Mouse.ListenOn(go_pos.Key, MouseButton.Left, ButtonState.Pressed, () =>
+                    {
+                        MessageDisplay.Add(kv.Key.Color.ToString() + ": " + go_pos.Value + " " + kimble.Board.GetIndexOf(go_pos.Value));
+                        InputWindow iw = new("nopan luku");
+                        Add(iw);
+                        iw.TextEntered += delegate (InputWindow iw)
+                        {
+                            int noppa = int.Parse(iw.InputBox.Text);
+                            kimble.DiceNow = noppa;
+                            Position newPos = kimble.Board.CalculateNewPosition(kv.Key, noppa, go_pos.Value);
+                            MovableSelected(go_pos.Key, go_pos.Value, newPos);
+                        };
+                    }, null);
+                }
+            }
+        }
     }
 
     public event EventHandler MovablePieceSelected;
@@ -65,50 +91,61 @@ public class KimbleGame : Game
             NewTurn();
         }
 
-        void MovableSelected(GameObject item)
+    }
+
+    void MovableSelected(GameObject item, Position oldPos = null, Position newPos = null)
+    {
+        if (oldPos == null) oldPos = ui.GetPositionOf(item);
+        if (newPos == null) newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
+        PieceMoved += () => PieceMovedHandler();
+        bool opponentFound = kimble.CheckForOpponent(newPos, out Player opponent, out Home opponentHome);
+        if (opponentFound)
         {
-            Position oldPos = ui.GetPositionOf(item);
-            Position newPos = kimble.PiecesThatCanMove.Find(x => x.oldPosition == oldPos).newPosition;
-            PieceMoved += () => PieceMovedHandler();
-            bool opponentFound = kimble.CheckForOpponent(newPos, out Player opponent, out Home opponentHome);
-            if (opponentFound)
+            ui.MovePiece(oldPos.PlayerInPosition, oldPos, newPos, item, () => MoveOpponent());
+            void MoveOpponent()
             {
-                ui.MovePiece(oldPos.PlayerInPosition, oldPos, newPos, item,  () => MoveOpponent());                
-                void MoveOpponent()
+                ui.MovePiece(opponent, newPos, opponentHome, ui.GetObjectAt(opponent, newPos), () =>
                 {
-                    ui.MovePiece(opponent, newPos, opponentHome, ui.GetObjectAt(opponent, newPos), () =>
-                    {
-                        kimble.Move(newPos, opponentHome);
-                        PieceMovedHandler();
-                    });
-                }
-            }
-            else
-            {
-                ui.MovePiece(oldPos.PlayerInPosition, oldPos, newPos, item, PieceMoved);
-            }
-
-            MoveComplete();
-
-            void MoveComplete()
-            {
-            }
-
-            void PieceMovedHandler()
-            {
-                kimble.Move(oldPos, newPos);
-                bool isGameOver = kimble.IsGameOver();
-                PieceMoved = null; 
-                if (kimble.DiceNow == 6)
-                {
-                    kimble.GameState = GameState.ReadyToRollDice;
-                    MessageDisplay.Add("Heitä uudestaan");
-                    return;
-                }
-                else NewTurn();
+                    kimble.Move(newPos, opponentHome);
+                    PieceMovedHandler();
+                });
             }
         }
+        else
+        {
+            ui.MovePiece(oldPos.PlayerInPosition, oldPos, newPos, item, PieceMoved);
+        }
+
+        MoveComplete();
+
+        void MoveComplete()
+        {
+        }
+
+        void PieceMovedHandler()
+        {
+            kimble.Move(oldPos, newPos);
+            bool isGameOver = kimble.IsGameOver();
+            if (isGameOver)
+            {
+                MessageDisplay.Add("Game over");
+                ClearControls();
+                ClearGameObjects();
+                ClearTimers();
+                Label label = new Label($"Peli päättyy!\n{kimble.PlayerInTurn.Color.Stringify("fi")} voittaa!");
+                return;
+            }
+            PieceMoved = null;
+            if (kimble.DiceNow == 6)
+            {
+                kimble.GameState = GameState.ReadyToRollDice;
+                MessageDisplay.Add("Heitä uudestaan");
+                return;
+            }
+            else NewTurn();
+        }
     }
+
 
     public Action PointerMovedToNewLocation;
 
@@ -116,7 +153,7 @@ public class KimbleGame : Game
     {
         // kimble.GameState = GameState.ReadyToRollDice;
         kimble.NextPlayer();
-        Timer.SingleShot(1.0, () =>
+        Timer.SingleShot(0.75 / Kimble.Speed, () =>
         {
             ui.UpdatePointer(() => kimble.GameState = GameState.ReadyToRollDice);
             MessageDisplay.Add($"Vuorossa nyt: {kimble.PlayerInTurn.Color}");

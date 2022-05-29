@@ -44,6 +44,7 @@ internal class Kimble
     /// Pieces that are currently movable (oldPosition) and their new position counterparts. 
     /// </summary>
     public List<(Position oldPosition, Position newPosition)> PiecesThatCanMove { get; private set; }
+    public static readonly double Speed = 5;
 
     /// <summary>
     /// Game over. 
@@ -93,7 +94,7 @@ internal class Kimble
     {
         GameState = GameState.DiceRolling;
         // This is the actual returned number.
-        int value = new Random().Next(3, 7);
+        int value = new Random().Next(5, 7);
         DiceNow = value;
         return value;
     }

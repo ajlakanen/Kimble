@@ -231,5 +231,4 @@ public class Board
     {
         return string.Join(", ", Positions.Select(pos => pos).Where(pos => pos.PlayerInPosition == player).Select(pos => GetIndexOf(pos)));
     }
-
 }

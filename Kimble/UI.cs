@@ -115,7 +115,7 @@ internal class UI
     public void MoveAlongArc(GameObject g, int steps, Action moveCompletedHandler)
     {
         Timer moveTimer = new Timer();
-        moveTimer.Interval = 0.50;
+        moveTimer.Interval = 0.50 / Kimble.Speed;
         moveTimer.Timeout += () => Move(g);
         moveTimer.Start(steps);
         Timer.SingleShot(steps * moveTimer.Interval + 0.1, () => moveCompletedHandler?.Invoke());

@@ -1,4 +1,6 @@
-﻿namespace Kimble;
+﻿using System.Collections.Generic;
+
+namespace Kimble;
 
 /// <summary>
 /// Color
@@ -26,21 +28,28 @@ public static class ColorExtensions
         return Jypeli.Color.LightBlue;
     }
 
-    public static string Stringify(this Color color)
+    public static string Stringify(this Color color, string language)
     {
-        switch (color)
+        Dictionary<string, Dictionary<Color, string>> strings = new()
         {
-            case Color.Red:
-                return "Red";
-            case Color.Green:
-                return "Green";
-            case Color.Yellow:
-                return "Yellow";
-            case Color.Blue:
-                return "Blue";
-            default:
-                break;
-        }
-        return color.ToString();
+            {"fi", new()
+                {
+                    {Color.Red, "Punainen" },
+                    {Color.Green, "Vihreä" },
+                    {Color.Yellow, "Keltainen" },
+                    {Color.Blue, "Sininen" }
+                }
+            },
+            {"en", new()
+                {
+                    {Color.Red, "Red"},
+                    {Color.Green, "Green" },
+                    {Color.Yellow, "Yellow" },
+                    {Color.Blue, "Blue" }
+                }
+            }
+        };
+
+        return strings[language][color];
     }
 }
