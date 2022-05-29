@@ -116,12 +116,6 @@ public class KimbleGame : Game
             ui.MovePiece(oldPos.PlayerInPosition, oldPos, newPos, item, PieceMoved);
         }
 
-        MoveComplete();
-
-        void MoveComplete()
-        {
-        }
-
         void PieceMovedHandler()
         {
             kimble.Move(oldPos, newPos);
