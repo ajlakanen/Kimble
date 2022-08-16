@@ -1,4 +1,5 @@
-# JypeliKimble
+# Jypeli Kimble
+
 Kimble clone with Jypeli
 
-Current status: Not ready.
+Current status: The game is now working. TODO: Assets and polish.
